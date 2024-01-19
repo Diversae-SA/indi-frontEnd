@@ -2,15 +2,15 @@
 import { useViewWrapper } from '/@src/stores/viewWrapper'
 
 const viewWrapper = useViewWrapper()
-viewWrapper.setPageTitle('Panel Principal')
+viewWrapper.setPageTitle('Listado de Departamentos')
 
 useHead({
-  title: 'Inicio - SEGDOC | BENITECH',
+  title: 'Listado de Departamentos',
 })
 </script>
 
 <template>
   <div class="page-content-inner">
-    <DashboardPrimary />
+    <DepartmentList />
   </div>
 </template>

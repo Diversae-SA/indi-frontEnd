@@ -60,17 +60,17 @@ watch(
     >
       <template #brand>
         <RouterLink
-          to="/"
+          to="/app"
           class="navbar-item is-brand"
         >
           <AnimatedLogo
-            width="38px"
-            height="38px"
+            width="240px"
+            height="50px"
           />
         </RouterLink>
 
         <div class="brand-end">
-          <NotificationsMobileDropdown />
+<!--          <NotificationsMobileDropdown />-->
           <UserProfileDropdown />
         </div>
       </template>
@@ -135,6 +135,39 @@ watch(
             />
           </a>
         </li>
+        <li>
+          <a
+            :class="[activeMobileSubsidebar === 'tool' && 'is-active']"
+            data-content="Ajustes"
+            tabindex="0"
+            role="button"
+            @keydown.space.prevent="switchSidebar('tool')"
+            @click="switchSidebar('tool')"
+          >
+            <i
+              aria-hidden="true"
+              class="iconify sidebar-svg"
+              data-icon="feather:tool"
+            />
+          </a>
+        </li>
+      </template>
+      <template #bottom-links>
+        <!-- Settings -->
+        <li class="is-hidden-touch">
+          <RouterLink
+            id="open-settings"
+            to="/setting/profile-settings"
+            data-content="Settings"
+          >
+            <i
+              aria-hidden="true"
+              class="iconify sidebar-svg"
+              data-icon="feather:settings"
+            />
+          </RouterLink>
+        </li>
+        <UserProfileDropdown up />
       </template>
     </Sidebar>
 
@@ -144,8 +177,12 @@ watch(
         @close="isDesktopSidebarOpen = false"
       />
     </Transition>
-
-    <LanguagesPanel />
+    <Transition name="slide-x">
+      <ToolSubsidebar
+        v-if="isDesktopSidebarOpen && activeMobileSubsidebar === 'tool'"
+        @close="isDesktopSidebarOpen = false"
+      />
+    </Transition>
 
     <VViewWrapper>
       <VPageContentWrapper>

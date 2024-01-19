@@ -44,8 +44,8 @@ const themeClasses = computed(() => {
     :class="[themeClasses]"
   >
     <div class="sidebar-brand">
-      <RouterLink to="/">
-        <AnimatedLogo width="36px" />
+      <RouterLink to="/app">
+        <IcoLogo width="40px" />
       </RouterLink>
     </div>
     <div class="sidebar-inner">
@@ -310,7 +310,6 @@ const themeClasses = computed(() => {
     .bottom-menu {
       li {
         position: relative;
-        width: 80px;
         height: 64px;
         display: flex;
         align-items: center;
@@ -384,6 +383,8 @@ const themeClasses = computed(() => {
       position: absolute;
       bottom: 0;
       padding: 0;
+      margin-left: 20px;
+      margin-bottom: 15px;
 
       li {
         display: flex;

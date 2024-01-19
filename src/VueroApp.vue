@@ -1,9 +1,14 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import { initDarkmode } from '/@src/stores/darkmode'
+import { useUserSession } from '/@src/stores/userSession'
+import { useApi } from '/@src/composable/useApi'
 
 // This is the global app setup function
 const { locale } = useI18n()
+const api = useApi()
+const router = useRouter()
+const userSession = useUserSession()
 
 const rtlCodes = [
   'ar',
@@ -119,12 +124,22 @@ useHead(() => ({
   },
 }))
 
-/**
- * Initialize the darkmode watcher
- *
- * @see /@src/stores/darkmode
- */
 initDarkmode()
+let timeoutId: ReturnType<typeof setTimeout>
+async function resetTimer() {
+  clearTimeout(timeoutId)
+  if (router.currentRoute.value.fullPath !== '/') {
+    timeoutId = setTimeout(async () => {
+      const currentPath = router.currentRoute.value.fullPath;
+      await api.post('logout')
+      await userSession.logoutUser()
+      await router.push({ path: '/', query: { redirect: currentPath } })
+    }, 60 * 60 * 2000) // 2 hora en milisegundos
+  }
+}
+
+window.addEventListener('mousemove', resetTimer)
+window.addEventListener('keydown', resetTimer)
 </script>
 
 <template>

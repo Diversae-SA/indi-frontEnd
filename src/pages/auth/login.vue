@@ -1,169 +1,178 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+import { useForm, ErrorMessage } from 'vee-validate'
+import { boolean, string, z as zod } from 'zod'
+import { toTypedSchema } from '@vee-validate/zod'
 import { useDarkmode } from '/@src/stores/darkmode'
-import { useUserSession } from '/@src/stores/userSession'
 import { useNotyf } from '/@src/composable/useNotyf'
-import sleep from '/@src/utils/sleep'
+import { useLaravelError } from '/@src/composable/useLaravelError'
+import { useUserSession } from '/@src/stores/userSession'
+import { authenticateUser } from '/@src/services/modules/user/accounts'
+import { catchFieldError } from '/@src/utils/api/catchFieldError'
 
-const isLoading = ref(false)
-const darkmode = useDarkmode()
+const darkMode = useDarkmode()
 const router = useRouter()
 const route = useRoute()
-const notyf = useNotyf()
+const notify = useNotyf()
 const userSession = useUserSession()
 const redirect = route.query.redirect as string
+const isLoading = ref(false)
+const { t } = useI18n()
 
-const handleLogin = async () => {
+const validationSchema = toTypedSchema(
+  zod.object({
+    email: string({
+      required_error: t('auth.errors.email.required'),
+    })
+      .email(t('auth.errors.email.format')),
+    password: string({
+      required_error: t('auth.errors.password.required'),
+    }),
+    remember: boolean().optional()
+  })
+)
+
+const { handleSubmit, isSubmitting, setFieldError } = useForm({
+  validationSchema,
+  initialValues: {
+    email: '',
+    password: '',
+    remember: false,
+  },
+});
+
+async function onLogin(values: any) {
   if (!isLoading.value) {
     isLoading.value = true
 
-    await sleep(2000)
-    userSession.setToken('logged-in')
+    try {
+      await authenticateUser('/login', values)
 
-    notyf.dismissAll()
-    notyf.success('Welcome back, Erik Kovalsky')
-
-    if (redirect) {
-      router.push(redirect)
-    } else {
-      router.push('/app')
+      if (redirect) {
+        await router.push(redirect)
+      } else {
+        await router.push('/app')
+      }
+      notify.dismissAll()
+      notify.success(`${t('auth.logged-in')}, ${userSession.user!.name}`)
+    } catch (err: any) {
+      catchFieldError(err, setFieldError)
+      notify.error(useLaravelError(err))
+    } finally {
+      isLoading.value = false
     }
-
-    isLoading.value = false
   }
 }
+const submitHandler = handleSubmit(onLogin)
+
+onMounted(async () => {
+  if(userSession.isLoggedIn){
+    await router.push('/app')
+  }
+})
 
 useHead({
-  title: 'Auth Login - Vuero',
+  title: 'BENITECH | SEGDOC',
 })
 </script>
 
 <template>
-  <div class="auth-wrapper-inner columns is-gapless">
-    <!-- Image section (hidden on mobile) -->
-    <div class="column login-column is-8 h-hidden-mobile h-hidden-tablet-p hero-banner">
-      <div class="hero login-hero is-fullheight is-app-grey">
-        <div class="hero-body">
-          <div class="columns">
-            <div class="column is-10 is-offset-1">
-              <img
-                class="light-image has-light-shadow has-light-border"
-                src="/@src/assets/illustrations/apps/vuero-banking-light.webp"
-                alt=""
-              >
-              <img
-                class="dark-image has-light-shadow"
-                src="/@src/assets/illustrations/apps/vuero-banking-dark.webp"
-                alt=""
-              >
-            </div>
-          </div>
-        </div>
-        <div class="hero-footer">
-          <p class="has-text-centered" />
-        </div>
+  <div class="auth-wrapper-inner is-single">
+    <!--Fake navigation-->
+    <div class="auth-nav">
+      <div class="left" />
+      <div class="center">
+        <RouterLink
+          to="/"
+          class="header-item"
+        >
+          <AnimatedLogo
+            width="420"
+            height="70"
+          />
+        </RouterLink>
+      </div>
+      <div class="right">
+        <label
+          class="dark-mode ml-auto"
+          tabindex="0"
+          role="button"
+          @keydown.space.prevent="(e) => (e.target as HTMLLabelElement).click()"
+        >
+          <input
+            data-cy="dark-mode-toggle"
+            type="checkbox"
+            :checked="!darkMode.isDark"
+            @change="darkMode.onChange"
+          >
+          <span />
+        </label>
       </div>
     </div>
 
-    <!-- Form section -->
-    <div class="column is-4">
-      <div class="hero is-fullheight is-white">
-        <div class="hero-heading">
-          <label
-            class="dark-mode ml-auto"
-            tabindex="0"
-            role="button"
-            @keydown.space.prevent="(e) => (e.target as HTMLLabelElement).click()"
-          >
-            <input
-              type="checkbox"
-              :checked="!darkmode.isDark"
-              @change="darkmode.onChange"
-            >
-            <span />
-          </label>
-          <div class="auth-logo">
-            <RouterLink to="/">
-              <AnimatedLogo
-                width="36px"
-                height="36px"
-              />
-            </RouterLink>
-          </div>
+    <!--Single Centered Form-->
+    <div class="single-form-wrap">
+      <div class="inner-wrap">
+        <!--Form Title-->
+        <div class="auth-head">
+          <h2>Sistema de Gestión de Expedientes</h2>
+          <p>Por favor inicia sesión en tu cuenta</p>
         </div>
-        <div class="hero-body">
-          <div class="container">
-            <div class="columns">
-              <div class="column is-12">
-                <div class="auth-content">
-                  <h2>Welcome Back.</h2>
-                  <p>Please sign in to your account</p>
-                  <RouterLink to="/auth/signup-2">
-                    I do not have an account yet
-                  </RouterLink>
-                </div>
-                <div class="auth-form-wrapper">
-                  <!-- Login Form -->
-                  <form
-                    method="post"
-                    novalidate
-                    @submit.prevent="handleLogin"
-                  >
-                    <div class="login-form">
-                      <!-- Username -->
-                      <VField>
-                        <VControl icon="feather:user">
-                          <VInput
-                            type="text"
-                            placeholder="Username"
-                            autocomplete="username"
-                          />
-                        </VControl>
-                      </VField>
 
-                      <!-- Password -->
-                      <VField>
-                        <VControl icon="feather:lock">
-                          <VInput
-                            type="password"
-                            placeholder="Password"
-                            autocomplete="current-password"
-                          />
-                        </VControl>
-                      </VField>
+        <!--Form-->
+        <div class="form-card">
+          <form @submit.prevent="submitHandler">
+            <div class="login-form">
+              <!-- Username -->
 
-                      <!-- Switch -->
-                      <VField>
-                        <VControl class="setting-item">
-                          <VCheckbox
-                            label="Remember me"
-                            paddingless
-                          />
-                        </VControl>
-                      </VField>
+              <VField id="email">
+                <VControl icon="feather:user">
+                  <VInput
+                    type="email"
+                    class="input"
+                    :placeholder="t('auth.placeholder.email')"
+                    autocomplete="email"
+                    :disabled="isSubmitting"
+                  />
+                  <ErrorMessage
+                    class="help is-danger"
+                    name="email"
+                  />
+                </VControl>
+              </VField>
 
-                      <!-- Submit -->
-                      <div class="login">
-                        <VButton
-                          :loading="isLoading"
-                          color="primary"
-                          type="submit"
-                          bold
-                          fullwidth
-                          raised
-                        >
-                          Sign In
-                        </VButton>
-                      </div>
+              <!-- Password -->
+              <VField id="password">
+                <VControl icon="feather:lock">
+                  <VInput
+                    type="password"
+                    class="input"
+                    :placeholder="t('auth.placeholder.password')"
+                    autocomplete="email"
+                    :disabled="isSubmitting"
+                  />
+                  <ErrorMessage
+                    class="help is-danger"
+                    name="password"
+                  />
+                </VControl>
+              </VField>
 
-                      <div class="forgot-link has-text-centered">
-                        <a>Forgot Password?</a>
-                      </div>
-                    </div>
-                  </form>
-                </div>
+              <!-- Submit -->
+              <div class="login">
+                <VButton
+                  :loading="isLoading"
+                  type="submit"
+                  color="primary"
+                  bold
+                  fullwidth
+                  raised
+                >
+                  Iniciar Sesion
+                </VButton>
               </div>
             </div>
-          </div>
+          </form>
         </div>
       </div>
     </div>

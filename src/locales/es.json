@@ -2,6 +2,7 @@
   "select-language": "Seleccione el idioma",
   "cancel-label": "Cancelar",
   "auth.title": "Únete a nosotros ahora",
+  "auth.logged-in": "Bienvenido",
   "auth.subtitle": "Empieza creando tu cuenta",
   "auth.label.promotional": "Recibe ofertas promocionales",
   "auth.action.login": "Ya tengo una cuenta",
@@ -32,5 +33,7 @@
   "components.v-credit-card.expiration-label": "caducidad",
   "components.v-credit-card.cvc-label": "código de seguridad",
   "components.v-credit-card.valid-label": "VÁLIDO",
-  "components.v-credit-card.valid-thru-label": "HASTA"
+  "components.v-credit-card.valid-thru-label": "HASTA",
+
+  "response.json.success.delete": "Datos eliminado correctamente!"
 }

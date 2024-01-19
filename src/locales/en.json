@@ -32,5 +32,7 @@
   "components.v-credit-card.expiration-label": "expiration",
   "components.v-credit-card.cvc-label": "security code",
   "components.v-credit-card.valid-label": "VALID",
-  "components.v-credit-card.valid-thru-label": "THRU"
+  "components.v-credit-card.valid-thru-label": "THRU",
+
+  "response.json.success.delete": "Data deleted successfully!"
 }

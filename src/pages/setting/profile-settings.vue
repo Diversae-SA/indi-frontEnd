@@ -2,15 +2,15 @@
 import { useViewWrapper } from '/@src/stores/viewWrapper'
 
 const viewWrapper = useViewWrapper()
-viewWrapper.setPageTitle('Panel Principal')
+viewWrapper.setPageTitle('Perfil de Configuración')
 
 useHead({
-  title: 'Inicio - SEGDOC | BENITECH',
+  title: 'Perfil de Configuración - SEGDOC',
 })
 </script>
 
 <template>
   <div class="page-content-inner">
-    <DashboardPrimary />
+    <SettingsProfile />
   </div>
 </template>

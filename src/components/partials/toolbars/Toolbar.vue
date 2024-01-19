@@ -48,18 +48,18 @@ const localFlagSrc = computed(() => {
       </label>
     </div>
 
-    <a
-      tabindex="0"
-      role="button"
-      class="toolbar-link right-panel-trigger"
-      @keydown.space.prevent="panels.setActive('languages')"
-      @click="panels.setActive('languages')"
-    >
-      <img
-        :src="localFlagSrc"
-        alt=""
-      >
-    </a>
+    <!--    <a-->
+    <!--      tabindex="0"-->
+    <!--      role="button"-->
+    <!--      class="toolbar-link right-panel-trigger"-->
+    <!--      @keydown.space.prevent="panels.setActive('languages')"-->
+    <!--      @click="panels.setActive('languages')"-->
+    <!--    >-->
+    <!--      <img-->
+    <!--        :src="localFlagSrc"-->
+    <!--        alt=""-->
+    <!--      >-->
+    <!--    </a>-->
 
     <slot />
   </div>

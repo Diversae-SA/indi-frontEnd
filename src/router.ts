@@ -1,58 +1,83 @@
-import {
-  createRouter as createClientRouter,
-  createWebHistory,
-  createMemoryHistory,
-  setupDataFetchingGuard,
-} from 'vue-router/auto'
+import { createMemoryHistory, createRouter as createClientRouter, createWebHistory } from 'vue-router'
+import layoutAuth from '/@src/pages/auth.vue'
+import layoutApp from '/@src/pages/app.vue'
 
-/*
- * By default, this plugins checks the folder at src/pages for any .vue files
- * and generates the corresponding routing structure basing itself in the file name.
- * This way, you no longer need to maintain a routes array when adding routes to your application,
- * instead just add the new .vue component to the routes folder and let this plugin do the rest!
- *
- * Let's take a look at a simple example:
- *
- * src/pages/
- * ├── index.vue
- * ├── about.vue
- * └── users/
- *     ├── index.vue
- *     └── [id].vue
- * This will generate the following routes:
- *
- * /: -> renders the index.vue component
- * /about: -> renders the about.vue component
- * /users: -> renders the users/index.vue component
- * /users/:id: -> renders the users/[id].vue component. id becomes a route param.
- *
- * View more examples:
- * @see https://github.com/posva/unplugin-vue-router#routes-folder-structure
- */
+const routes = [
+  {
+    path: '/',
+    name: 'login',
+    component: layoutAuth,
+    children: [
+      {
+        component: () => import('/@src/pages/auth/login.vue'),
+        path: '',
+        name: 'auth-login',
+        props: true,
+      },
+    ],
+  },
+
+  {
+    path: '/app',
+    name: 'app',
+    component: layoutApp,
+    meta: {
+      requiresAuth: true,
+    },
+    children: [
+      {
+        component: () => import('/@src/pages/app/index.vue'),
+        path: '',
+        name: 'home',
+        props: true,
+      },
+
+      //--------- Tool ---------- --------------------------------------
+      {
+        component: () => import('/@src/pages/tool/departments.vue'),
+        path: '/tool/departments',
+        name: '/tool/departments',
+        props: true,
+      },
+
+      //--------- Profile Setting --------------------------------------
+      {
+        component: () => import('/@src/pages/setting/profile-settings.vue'),
+        path: '/setting/profile-settings',
+        name: '/setting/profile-settings',
+        props: true,
+      },
+
+      //---------------------------- Rol and Permission ----------------
+      /*{
+        component: () => import('/@src/pages/setting/rol.vue'),
+        path: '/setting/rol',
+        name: 'setting/rol',
+        props: true,
+      },*/
+
+      //---------------------------- Users -----------------------------
+      {
+        component: () => import('/@src/pages/setting/users.vue'),
+        path: '/setting/profile-settings/users',
+        name: '/setting/profile-settings/users',
+        props: true,
+      },
+    ],
+  },
+
+  {
+    component: () => import('/@src/pages/[...all].vue'),
+    name: 'all',
+    path: '/:all(.*)',
+    props: true,
+  },
+];
+
 export function createRouter() {
-  const router = createClientRouter({
-    /**
-     * If you need to serve vuero under a subdirectory,
-     * you have to set the name of the directory in createWebHistory here
-     * and update "base" config in vite.config.ts
-     */
-    // history: createWebHistory('my-subdirectory'),
+  return createClientRouter({
     history: import.meta.env.SSR ? createMemoryHistory() : createWebHistory(),
-
-    /**
-     * You can extend existing routes:
-     */
-    // extendRoutes: (routes) => {
-    //   const adminRoute = routes.find((r) => r.name === '/admin')
-    //   if (!adminRoute) {
-    //     adminRoute.meta ??= {}
-    //     adminRoute.meta.requiresAuth = true
-    //   }
-    //   // completely optional since we are modifying the routes in place
-    //   return routes
-    // },
-
-    // handle scroll behavior between routes
+    routes,
     scrollBehavior: (to, from, savedPosition) => {
       // Scroll to heading on click
       if (to.hash) {
@@ -93,14 +118,4 @@ export function createRouter() {
       }
     },
   })
-
-  /**
-   * Data Fetching is an experimental feature from vue & vue-router
-   *
-   * @see https://github.com/vuejs/rfcs/discussions/460
-   * @see https://github.com/posva/unplugin-vue-router/tree/main/src/data-fetching
-   */
-  setupDataFetchingGuard(router)
-
-  return router
 }
