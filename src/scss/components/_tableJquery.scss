@@ -1,3 +1,5 @@
+//@import url('https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css');
+
 .datatable {
   background-color: var(--primary--color-invert);
   border-radius: var(--radius);
@@ -46,7 +48,7 @@ table.dataTable tfoot {
   background-color: var(--primary--light-color);
 }*/
 
-.dataTables_wrapper .dataTables_filter {
+.dt-container .dt-search {
   float: left;
   text-align: right;
   margin-bottom: 2em;
@@ -67,7 +69,7 @@ table.dataTable tfoot {
   }
 }
 
-.dataTables_length{
+.dt-length{
   float: right;
   display: inline;
   position: relative;
@@ -82,7 +84,7 @@ table thead td, .table thead th {
   text-transform: uppercase;
 }
 
-.search-input {
+.search-input, .dt-input {
   width: 100%;
   background-color: var(--white);
   color: #363636;
@@ -123,11 +125,11 @@ table thead td, .table thead th {
 .select-container:not(.is-multiple) {
   height: 2.5em;
 }
-.select-container {
+.dt-container {
   width: 100%;
 }
 
-.select-container {
+.dt-length {
   display: inline-block;
   max-width: 100%;
   position: relative;
@@ -136,10 +138,10 @@ table thead td, .table thead th {
   margin-bottom: 5px;
 }
 
-.select-container select:not([multiple]) {
+.dt-length select:not([multiple]) {
   padding-inline-end: 2.5em;
 }
-.select-container select {
+.dt-length select {
   cursor: pointer;
   max-width: 100%;
   outline: none;
@@ -176,7 +178,12 @@ table.dataTable thead > tr > td.sorting_desc_disabled {
   padding-right: 26px;
 }
 
-table.dataTable thead > tr > th.sorting:before, table.dataTable thead > tr > th.sorting_asc:before, table.dataTable thead > tr > th.sorting_desc:before, table.dataTable thead > tr > th.sorting_asc_disabled:before, table.dataTable thead > tr > th.sorting_desc_disabled:before, table.dataTable thead > tr > td.sorting:before, table.dataTable thead > tr > td.sorting_asc:before, table.dataTable thead > tr > td.sorting_desc:before, table.dataTable thead > tr > td.sorting_asc_disabled:before, table.dataTable thead > tr > td.sorting_desc_disabled:before {
+table thead > tr > th.sorting:before, table thead > tr > th.sorting_asc:before,
+table thead > tr > th.sorting_desc:before, table thead > tr > th.sorting_asc_disabled:before,
+table thead > tr > th.sorting_desc_disabled:before, table thead > tr > td.sorting:before,
+table thead > tr > td.sorting_asc:before, table thead > tr > td.sorting_desc:before,
+table thead > tr > td.sorting_asc_disabled:before,
+table thead > tr > td.sorting_desc_disabled:before {
   bottom: 50%;
   content: "▲";
   content: "▲"/"";
@@ -236,12 +243,12 @@ table.dataTable tbody > tr:hover {
     background-color: transparent;
   }
 
-  .table thead tr {
-    background-color: var(--dark-sidebar-light-5);
-  }
-
   tbody .odd {
     background-color: var(--placeload-nuance-to);
+  }
+
+  .table thead tr {
+    background-color: var(--dark-sidebar-light-5);
   }
 
   table.dataTable tbody > tr:hover {
@@ -294,7 +301,7 @@ table.dataTable tbody > tr:hover {
   }
 }
 
-.dataTables_length > label > select{
+.dt-length > label > select{
   width: auto;
   border-radius: var(--radius-rounded);
   cursor: pointer;
@@ -517,33 +524,29 @@ tbody {
 1. Table Pagination
 ========================================================================== */
 
-.dataTables_info{
+.dt-info{
   float: left;
   margin-top: 30px;
 }
 
-.dataTables_paginate {
+.dt-paging {
   float: right;
   margin-top: 15px;
 
   .next,
   .previous {
+    background: var(--white);
+    min-width: 85px;
     order: initial;
   }
 
-  .next,
-  .previous {
-    background: var(--white);
-    min-width: 85px;
-  }
 
-  span {
-    .paginate_button {
+  .dt-paging-button {
       -webkit-appearance: none;
       align-items: center;
       border: 1px solid;
       border-color: var(--border);
-      background: var(--white);
+      background: hsl(0deg, 0%, 86%);
       font-family: var(--font), serif;
       font-size: 0.9em;
       display: inline-flex;
@@ -569,18 +572,4 @@ tbody {
         border-color: var(--border);
       }
     }
-  }
-  .paginate_button {
-    border: 1px solid;
-    border-color: var(--border);
-    background: hsl(0deg, 0%, 86%);
-    font-size: 0.9em;
-    display: inline-flex;
-    justify-content: center;
-    margin: 0.25rem;
-    color: #363636;
-    border-radius: var(--radius);
-    padding-bottom: calc(0.5em - 1px);
-    padding-top: calc(0.5em - 1px);
-  }
 }

@@ -10,7 +10,7 @@
   "[vue]": {
     "editor.defaultFormatter": "dbaeumer.vscode-eslint",
     "editor.codeActionsOnSave": {
-      "source.fixAll.eslint": true
+      "source.fixAll.eslint": "explicit"
     }
   },
   "eslint.alwaysShowStatus": true,
@@ -23,6 +23,5 @@
   "files.associations": {
     "*.json": "jsonc"
   },
-  "typescript.tsdk": "node_modules/typescript/lib",
   "vue.codeActions.enabled": false
 }

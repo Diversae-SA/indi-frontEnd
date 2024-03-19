@@ -1,13 +1,13 @@
-import { useApi } from '/@src/composable/useApi'
+import { useFetch } from '/@src/composable/useFetch'
 import { useUserSession } from '/@src/stores/userSession'
 
-export async function authenticateUser(route: string, body: Record<string, any>) {
-  const api = useApi()
+export async function authenticateUser(route: string, body: object) {
+  const $fetch = useFetch()
   const userSession = useUserSession()
 
-  const { data: token }  = await api.post(route, body)
-  userSession.setToken(token.token)
+  const data = await $fetch(route,{method: 'POST', body: body })
+  userSession.setToken(data.token)
 
-  const { data: user } = await await api.get('user')
+  const user = await $fetch('user')
   userSession.setUser(user)
 }
