@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useApi } from '/@src/composable/useApi'
+import { useFetch } from '/@src/composable/useFetch'
 import { hasPermission } from '/@src/utils/permissions'
 import { useLaravelError } from '/@src/composable/useLaravelError'
 import { useNotyf } from '/@src/composable/useNotyf'
@@ -9,26 +9,29 @@ import { useForm, ErrorMessage } from 'vee-validate'
 import { string, z as zod } from 'zod'
 import { catchFieldError } from '/@src/utils/api/catchFieldError'
 
-const api = useApi()
+const $fetch = useFetch()
 const { t } = useI18n()
 const notify = useNotyf()
 const isLoading = ref(false)
-const router = useRouter()
 const modalDeleted = ref(false)
 const modalNew = ref(false)
+const updateData = ref(false)
 const columns = [
-  { data: 'id', title: 'ID', visible: false},
+  { data: 'id', title: 'ID', visible: false },
   { data: 'name', title: 'Nombre del Departamento' },
   { data: 'code', title: 'Código' },
 ]
-const idData = ref(null)
+const idData = ref()
 const emit = defineEmits(['updateTable'])
-const showButtons = ['edit','delete']
+const buttonTable = [
+  { button: 'edit', permission: 'organizations edit' },
+  { button: 'delete', permission: 'organizations delete' },
+]
 const updateTableEvent = ref(false)
 
 interface Department {
-  name: string,
-  code: string,
+  name: string
+  code: string
 }
 
 const validationSchema = toTypedSchema(
@@ -39,44 +42,55 @@ const validationSchema = toTypedSchema(
     name: string({
       required_error: 'El campo no puede estar vacio',
     }),
-  })
+  }),
 )
 
-const { values, handleSubmit, isSubmitting, setFieldError } = useForm<Department>({
+const { values, handleSubmit, isSubmitting, setFieldError, setFieldValue } = useForm<Department>({
   validationSchema,
-});
+})
 
-async function onStore(values: any) {
+async function onStore() {
   if (!isLoading.value) {
     isLoading.value = true
-
     try {
       updateTableEvent.value = false
       emit('updateTable')
-      await api.post('/departments', values)
+      const method = updateData.value ? 'PUT' : 'POST'
+      const url = updateData.value ? '/departments/' + idData.value : '/departments'
+      await $fetch(url, { method: method, body: values })
       modalNew.value = false
       updateTableEvent.value = true
       emit('updateTable')
       notify.dismissAll()
       notify.success('Dato registrado con éxito!')
-    } catch (err: any) {
+    }
+    catch (err: any) {
       catchFieldError(err, setFieldError)
       notify.error(useLaravelError(err))
-    } finally {
+    }
+    finally {
       isLoading.value = false
     }
   }
 }
 const submitHandler = handleSubmit(onStore)
 
-const handleEdit = (id: number) => {
-  router.push({
-    name: '/setting/profile-settings',
-    params: { id },
+function handleNew() {
+  updateData.value = false
+  modalNew.value = true
+}
+
+async function handleEdit(id: number) {
+  idData.value = id
+  await $fetch('departments/' + id).then((result: Department) => {
+    setFieldValue('name', result.name)
+    setFieldValue('code', result.code)
+    updateData.value = true
+    modalNew.value = true
   })
 }
 
-const handleDelete = (data: any) => {
+function handleDelete(data: any) {
   idData.value = data
   modalDeleted.value = true
 }
@@ -85,13 +99,14 @@ async function DeletedTraining() {
   try {
     updateTableEvent.value = false
     emit('updateTable')
-    await api.delete(`/departments/${idData.value}`)
+    await $fetch(`/departments/${idData.value}`, { method: 'DELETE' })
     modalDeleted.value = false
     updateTableEvent.value = true
     emit('updateTable')
     notify.dismissAll()
     notify.success(`${t('response.json.success.delete')}`)
-  } catch (err: any) {
+  }
+  catch (err: any) {
     modalDeleted.value = false
     notify.error(useLaravelError(err))
   }
@@ -127,7 +142,7 @@ async function DeletedTraining() {
       <VButton
         color="primary"
         icon="fas fa-plus"
-        @click="modalNew = true"
+        @click="handleNew"
       >
         Nuevo Departamento
       </VButton>
@@ -138,7 +153,7 @@ async function DeletedTraining() {
     :columns="columns"
     server-side-url="departments"
     :update-table-event="updateTableEvent"
-    :show-buttons="showButtons"
+    :button-table="buttonTable"
     @edit="handleEdit"
     @delete="handleDelete"
   />
@@ -146,10 +161,10 @@ async function DeletedTraining() {
   <VModal
     is="form"
     :open="modalNew"
-    title="Registrar nuevo Departamento"
+    :title="updateData ? 'Actualizar Departamento' : 'Registrar nuevo Departamento'"
     size="small"
     actions="right"
-    @submit.prevent="modalNew = false"
+    :noclose="true"
     @close="modalNew = false"
   >
     <template #content>
@@ -160,7 +175,6 @@ async function DeletedTraining() {
         >
           <VControl icon="feather:code">
             <VInput
-              v-model="values.code"
               type="text"
               class="input"
               :disabled="isSubmitting"
@@ -177,7 +191,6 @@ async function DeletedTraining() {
         >
           <VControl icon="feather:file-text">
             <VInput
-              v-model="values.name"
               type="text"
               class="input"
               :disabled="isSubmitting"
