@@ -6,7 +6,7 @@ const emit = defineEmits(['close'])
   <div class="sidebar-panel is-generic">
     <div class="subpanel-header">
       <h3 class="no-mb">
-        Datos Generales
+        Ajustes Generales
       </h3>
       <div
         class="panel-close"
@@ -28,21 +28,21 @@ const emit = defineEmits(['close'])
     >
       <ul>
         <li>
-          <RouterLink to="/tool/departments">
+          <RouterLink to="/setting/rol">
             <i
               aria-hidden="true"
-              class="lnil lnil-world-2 pr-2"
+              class="lnil lnil-lock-alt pr-2"
             />
-            Departamento
+            Roles y Permisos
           </RouterLink>
         </li>
         <li>
-          <RouterLink to="/tool/functionary">
+          <RouterLink to="/setting/organization-chart">
             <i
               aria-hidden="true"
-              class="lnil lnil-users-alt pr-2"
+              class="lnil lnil-hierchy-alt pr-2"
             />
-            Funcionarios
+            Organigrama
           </RouterLink>
         </li>
       </ul>

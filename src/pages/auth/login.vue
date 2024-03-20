@@ -28,8 +28,8 @@ const validationSchema = toTypedSchema(
     password: string({
       required_error: t('auth.errors.password.required'),
     }),
-    remember: boolean().optional()
-  })
+    remember: boolean().optional(),
+  }),
 )
 
 const { handleSubmit, isSubmitting, setFieldError } = useForm({
@@ -39,7 +39,7 @@ const { handleSubmit, isSubmitting, setFieldError } = useForm({
     password: '',
     remember: false,
   },
-});
+})
 
 async function onLogin(values: any) {
   if (!isLoading.value) {
@@ -50,15 +50,18 @@ async function onLogin(values: any) {
 
       if (redirect) {
         await router.push(redirect)
-      } else {
+      }
+      else {
         await router.push('/app')
       }
       notify.dismissAll()
       notify.success(`${t('auth.logged-in')}, ${userSession.user!.name}`)
-    } catch (err: any) {
+    }
+    catch (err: any) {
       catchFieldError(err, setFieldError)
       notify.error(useLaravelError(err))
-    } finally {
+    }
+    finally {
       isLoading.value = false
     }
   }
@@ -66,7 +69,7 @@ async function onLogin(values: any) {
 const submitHandler = handleSubmit(onLogin)
 
 onMounted(async () => {
-  if(userSession.isLoggedIn){
+  if (userSession.isLoggedIn) {
     await router.push('/app')
   }
 })

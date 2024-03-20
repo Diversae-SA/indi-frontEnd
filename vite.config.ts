@@ -17,7 +17,7 @@ import UnheadVite from '@unhead/addons/vite'
 import { unheadVueComposablesImports } from '@unhead/vue'
 
 // local vite plugin
-import { VitePluginVueroDoc } from '/vite-plugin/vuero-doc'
+import { VitePluginVueroDoc } from './vite-plugin/vuero-doc'
 import { VitePluginPurgeComments } from './vite-plugin/purge-comments'
 
 // options via env variables

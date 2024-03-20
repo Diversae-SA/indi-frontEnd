@@ -32,15 +32,37 @@ const routes = [
         props: true,
       },
 
-      //--------- Tool ---------- --------------------------------------
+      // --------- Tool ---------- --------------------------------------
       {
         component: () => import('/@src/pages/tool/departments.vue'),
         path: '/tool/departments',
         name: '/tool/departments',
         props: true,
       },
+      // ---------------------------- Functionaries ---------------------
+      {
+        component: () => import('/@src/pages/tool/functionaries/functionary.vue'),
+        path: '/tool/functionary',
+        name: 'tool/functionary',
+        props: true,
+        meta: { permission: 'program functionaries' },
+      },
+      {
+        component: () => import('/@src/pages/tool/functionaries/functionary-create.vue'),
+        path: '/tool/functionary/create',
+        name: 'tool/functionary/create',
+        props: true,
+        meta: { permission: 'functionaries create' },
+      },
+      {
+        component: () => import('/@src/pages/tool/functionaries/functionary-update.vue'),
+        path: '/tool/functionary/update/:id',
+        name: '/tool/functionary/update',
+        props: true,
+        meta: { permission: 'functionaries edit' },
+      },
 
-      //--------- Profile Setting --------------------------------------
+      // --------- Profile Setting --------------------------------------
       {
         component: () => import('/@src/pages/setting/profile-settings.vue'),
         path: '/setting/profile-settings',
@@ -48,15 +70,55 @@ const routes = [
         props: true,
       },
 
-      //---------------------------- Rol and Permission ----------------
-      /*{
-        component: () => import('/@src/pages/setting/rol.vue'),
+      // ---------------------------- SETTINGS --------------------------
+
+      // ---------------------------- Organization Chart ----------------
+      {
+        component: () => import('/@src/pages/setting/organizationChart/organizationChart.vue'),
+        path: '/setting/organization-chart',
+        name: 'setting/organization-chart',
+        props: true,
+        meta: { permission: 'program organizationsChart' },
+      },
+      {
+        component: () => import('/@src/pages/setting/organizationChart/organizationChart-create.vue'),
+        path: '/setting/organization-chart/create',
+        name: 'setting/organization-chart/create',
+        props: true,
+        meta: { permission: 'organizationsChart create' },
+      },
+      {
+        component: () => import('/@src/pages/setting/organizationChart/organizationChart-update.vue'),
+        path: '/setting/organization-chart/update/:id',
+        name: '/setting/organization-chart/update',
+        props: true,
+        meta: { permission: 'organizationsChart edit' },
+      },
+
+      // ---------------------------- Rol and Permission ----------------
+      {
+        component: () => import('/@src/pages/setting/role/rol.vue'),
         path: '/setting/rol',
         name: 'setting/rol',
         props: true,
-      },*/
+        meta: { permission: 'program roles' },
+      },
+      {
+        component: () => import('/@src/pages/setting/role/rol-create.vue'),
+        path: '/setting/rol/create',
+        name: 'setting/rol/create',
+        props: true,
+        meta: { permission: 'roles create' },
+      },
+      {
+        component: () => import('/@src/pages/setting/role/rol-update.vue'),
+        path: '/setting/rol/update/:id',
+        name: '/setting/rol/update',
+        props: true,
+        meta: { permission: 'roles edit' },
+      },
 
-      //---------------------------- Users -----------------------------
+      // ---------------------------- Users -----------------------------
       {
         component: () => import('/@src/pages/setting/users.vue'),
         path: '/setting/profile-settings/users',
@@ -72,7 +134,7 @@ const routes = [
     path: '/:all(.*)',
     props: true,
   },
-];
+]
 
 export function createRouter() {
   return createClientRouter({
@@ -113,7 +175,8 @@ export function createRouter() {
       // Scroll to top of window
       if (savedPosition) {
         return savedPosition
-      } else if (to.path !== from.path) {
+      }
+      else if (to.path !== from.path) {
         return { top: 0 }
       }
     },

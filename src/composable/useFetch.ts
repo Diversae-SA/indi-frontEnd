@@ -15,7 +15,7 @@ export function useFetch() {
           ...options.headers,
           'Content-Type': 'application/json',
           'X-Requested-With': 'XMLHttpRequest',
-          Authorization: `Bearer ${userSession.token}`,
+          'Authorization': `Bearer ${userSession.token}`,
         }
       }
     },

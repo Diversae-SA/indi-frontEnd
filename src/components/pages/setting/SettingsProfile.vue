@@ -80,6 +80,7 @@ const username = useSession.user!.name
         </RouterLink>
         <RouterLink
           to="/setting/profile-settings/users"
+          permission="program users"
           class="settings-box"
         >
           <div class="edit-icon">
@@ -88,16 +89,18 @@ const username = useSession.user!.name
               class="lnil lnil-pencil"
             />
           </div>
-
           <VIconWrap
             dark="6"
             icon="lnil lnil-users"
           />
-
           <span>Usuarios</span>
           <h3>Lista de Usuarios</h3>
         </RouterLink>
-        <a class="settings-box">
+        <RouterLink
+          to="/setting/profile-settings/users"
+          permission="program users"
+          class="settings-box"
+        >
           <div class="edit-icon">
             <i
               aria-hidden="true"
@@ -112,23 +115,25 @@ const username = useSession.user!.name
 
           <span>Projects</span>
           <h3>Project Settings</h3>
-        </a>
-        <a class="settings-box">
+        </RouterLink>
+        <RouterLink
+          to="/setting/profile-settings/users"
+          permission="program users"
+          class="settings-box"
+        >
           <div class="edit-icon">
             <i
               aria-hidden="true"
               class="lnil lnil-pencil"
             />
           </div>
-
           <VIconWrap
             dark="6"
             icon="lnil lnil-lock-alt-1"
           />
-
           <span>Roles</span>
           <h3>Gestión de Permisos</h3>
-        </a>
+        </RouterLink>
         <a class="settings-box">
           <div class="edit-icon">
             <i

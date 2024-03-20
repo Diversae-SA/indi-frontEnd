@@ -43,7 +43,7 @@ useHead({
             <VButton
               color="primary"
               elevated
-              to="/"
+              to="/app"
             >
               {{ t('pages.not-found.page-button') }}
             </VButton>

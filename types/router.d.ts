@@ -44,10 +44,18 @@ declare module 'vue-router/auto/routes' {
     '/app/': RouteRecordInfo<'/app/', '/app', Record<never, never>, Record<never, never>>,
     '/auth': RouteRecordInfo<'/auth', '/auth', Record<never, never>, Record<never, never>>,
     '/auth/login': RouteRecordInfo<'/auth/login', '/auth/login', Record<never, never>, Record<never, never>>,
+    '/setting/organizationChart/organizationChart': RouteRecordInfo<'/setting/organizationChart/organizationChart', '/setting/organizationChart/organizationChart', Record<never, never>, Record<never, never>>,
+    '/setting/organizationChart/organizationChart-create': RouteRecordInfo<'/setting/organizationChart/organizationChart-create', '/setting/organizationChart/organizationChart-create', Record<never, never>, Record<never, never>>,
+    '/setting/organizationChart/organizationChart-update': RouteRecordInfo<'/setting/organizationChart/organizationChart-update', '/setting/organizationChart/organizationChart-update', Record<never, never>, Record<never, never>>,
     '/setting/profile-settings': RouteRecordInfo<'/setting/profile-settings', '/setting/profile-settings', Record<never, never>, Record<never, never>>,
-    '/setting/rol': RouteRecordInfo<'/setting/rol', '/setting/rol', Record<never, never>, Record<never, never>>,
+    '/setting/role/rol': RouteRecordInfo<'/setting/role/rol', '/setting/role/rol', Record<never, never>, Record<never, never>>,
+    '/setting/role/rol-create': RouteRecordInfo<'/setting/role/rol-create', '/setting/role/rol-create', Record<never, never>, Record<never, never>>,
+    '/setting/role/rol-update': RouteRecordInfo<'/setting/role/rol-update', '/setting/role/rol-update', Record<never, never>, Record<never, never>>,
     '/setting/users': RouteRecordInfo<'/setting/users', '/setting/users', Record<never, never>, Record<never, never>>,
     '/tool/departments': RouteRecordInfo<'/tool/departments', '/tool/departments', Record<never, never>, Record<never, never>>,
+    '/tool/functionaries/functionary': RouteRecordInfo<'/tool/functionaries/functionary', '/tool/functionaries/functionary', Record<never, never>, Record<never, never>>,
+    '/tool/functionaries/functionary-create': RouteRecordInfo<'/tool/functionaries/functionary-create', '/tool/functionaries/functionary-create', Record<never, never>, Record<never, never>>,
+    '/tool/functionaries/functionary-update': RouteRecordInfo<'/tool/functionaries/functionary-update', '/tool/functionaries/functionary-update', Record<never, never>, Record<never, never>>,
   }
 }
 

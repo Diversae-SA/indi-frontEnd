@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { SidebarTheme } from '/@src/components/navigation/desktop/Sidebar.vue'
 import { useViewWrapper } from '/@src/stores/viewWrapper'
+import { hasPermission } from '/@src/utils/permissions'
 
 const props = withDefaults(
   defineProps<{
@@ -70,7 +71,7 @@ watch(
         </RouterLink>
 
         <div class="brand-end">
-<!--          <NotificationsMobileDropdown />-->
+          <!-- <NotificationsMobileDropdown />-->
           <UserProfileDropdown />
         </div>
       </template>
@@ -155,18 +156,34 @@ watch(
       <template #bottom-links>
         <!-- Settings -->
         <li class="is-hidden-touch">
-          <RouterLink
-            id="open-settings"
-            to="/setting/profile-settings"
-            data-content="Settings"
+          <a
+            :class="[activeMobileSubsidebar === 'setting' && 'is-active']"
+            data-content="Setting"
+            tabindex="0"
+            role="button"
+            @keydown.space.prevent="switchSidebar('setting')"
+            @click="switchSidebar('setting')"
           >
             <i
               aria-hidden="true"
               class="iconify sidebar-svg"
               data-icon="feather:settings"
             />
-          </RouterLink>
+          </a>
         </li>
+        <!--        <li class="is-hidden-touch">-->
+        <!--          <RouterLink-->
+        <!--            id="open-settings"-->
+        <!--            to="/setting/profile-settings"-->
+        <!--            data-content="Settings"-->
+        <!--          >-->
+        <!--            <i-->
+        <!--              aria-hidden="true"-->
+        <!--              class="iconify sidebar-svg"-->
+        <!--              data-icon="feather:settings"-->
+        <!--            />-->
+        <!--          </RouterLink>-->
+        <!--        </li>-->
         <UserProfileDropdown up />
       </template>
     </Sidebar>
@@ -180,6 +197,12 @@ watch(
     <Transition name="slide-x">
       <ToolSubsidebar
         v-if="isDesktopSidebarOpen && activeMobileSubsidebar === 'tool'"
+        @close="isDesktopSidebarOpen = false"
+      />
+    </Transition>
+    <Transition name="slide-x">
+      <SettingSubsidebar
+        v-if="isDesktopSidebarOpen && activeMobileSubsidebar === 'setting'"
         @close="isDesktopSidebarOpen = false"
       />
     </Transition>

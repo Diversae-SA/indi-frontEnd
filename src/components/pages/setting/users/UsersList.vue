@@ -1,29 +1,29 @@
 <script setup lang="ts">
-import { useApi } from '/@src/composable/useApi'
+import { useFetch } from '/@src/composable/useFetch'
 import { hasPermission } from '/@src/utils/permissions'
 import { useLaravelError } from '/@src/composable/useLaravelError'
 import { useNotyf } from '/@src/composable/useNotyf'
 
-const api = useApi()
+const $fetch = useFetch()
 const notify = useNotyf()
 const router = useRouter()
 const modalDeleted = ref(false)
 const columns = [
-  { data: 'id', title: 'ID', visible: false},
+  { data: 'id', title: 'ID', visible: false },
   {
     data: 'profile_path',
     title: 'Perfil',
     orderable: false,
     searchable: false,
-    render: function(data: any, type: any) {
+    render: function (data: any, type: any) {
       let imageHtml = '<div class="image-list"><img src="/src/assets/illustrations/images/ImageNotFound.png" alt="Image" /></div>'
-      if(data != null) {
-        if(type === 'display') {
-          imageHtml =  '<div class="image-list"><img src="http://localhost/storage/' +  data + '" alt="Image" /></div>';
+      if (data != null) {
+        if (type === 'display') {
+          imageHtml = '<div class="image-list"><img src="http://localhost/storage/' + data + '" alt="Image" /></div>'
         }
       }
       return imageHtml
-    }
+    },
   },
   { data: 'name', title: 'Nombre de Usuario', typeSearch: 'input' },
   { data: 'email', title: 'Correo Electrónico', typeSearch: 'input' },
@@ -35,17 +35,17 @@ const columns = [
     orderable: false,
     typeSearch: 'input',
     searchable: false,
-    render: function(data: any, type: any) {
+    render: function (data: any, type: any) {
       let rolHtml = ''
-      if(data.length > 0) {
+      if (data.length > 0) {
         data.forEach((roles: any) => {
-          if(type === 'display') {
-            rolHtml =  rolHtml+'- <p class="is-primary">' +  roles.name + '</p>';
+          if (type === 'display') {
+            rolHtml = rolHtml + '- <p class="is-primary">' + roles.name + '</p>'
           }
         })
       }
       return rolHtml
-    }
+    },
   },
   {
     data: 'active',
@@ -68,7 +68,7 @@ const columns = [
 ]
 const idData = ref(null)
 const emit = defineEmits(['updateTable'])
-const showButtons = ['edit','delete']
+const showButtons = ['edit', 'delete']
 const updateTableEvent = ref(false)
 
 const handleEdit = (id: number) => {
@@ -87,16 +87,18 @@ async function DeletedTraining() {
   try {
     updateTableEvent.value = false
     emit('updateTable')
-    const res = await api.delete(`/users/${idData.value}`)
+    const res = await $fetch(`/users/${idData.value}`, { method: 'DELETED' })
     modalDeleted.value = false
     updateTableEvent.value = true
     emit('updateTable')
     if (res.status == 200) {
       notify.success(`Datos eliminados Correctamente!`)
-    } else {
+    }
+    else {
       notify.error(res.data.message)
     }
-  } catch (err: any) {
+  }
+  catch (err: any) {
     modalDeleted.value = false
     notify.error(useLaravelError(err))
   }
