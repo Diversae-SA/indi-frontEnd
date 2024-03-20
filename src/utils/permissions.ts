@@ -17,7 +17,7 @@ export function hasPermission(permission: string, user_id?: any): boolean {
     return isOwner
   }*/
 
-  //Verifico los permisos dentro de cada rol
+  //Verifico los permisos dentro de cada role
   for (let i = 0; i < user?.roles.length; i++) {
     for (let j = 0; j < user?.roles[i].permissions.length; j++) {
       //console.log(user?.roles[i].permissions[j].name)
