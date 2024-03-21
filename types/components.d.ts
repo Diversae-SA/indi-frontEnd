@@ -46,6 +46,7 @@ declare module 'vue' {
     Toolbar: typeof import('./../src/components/partials/toolbars/Toolbar.vue')['default']
     ToolSubsidebar: typeof import('./../src/layouts/sidebar-subsidebar/ToolSubsidebar.vue')['default']
     UIWidget: typeof import('./../src/components/partials/widgets/ui-creative/UIWidget.vue')['default']
+    UserCreateUpdate: typeof import('./../src/components/pages/setting/users/UserCreateUpdate.vue')['default']
     UserProfileDropdown: typeof import('./../src/components/partials/dropdowns/UserProfileDropdown.vue')['default']
     UsersList: typeof import('./../src/components/pages/setting/users/UsersList.vue')['default']
     VAccordion: typeof import('./../src/components/base/VAccordion.vue')['default']

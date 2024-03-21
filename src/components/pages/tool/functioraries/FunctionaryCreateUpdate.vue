@@ -138,7 +138,7 @@ const desSelect = () => {
 
 // -------------Save or Update ----------------------------
 const onSubmit = handleSubmit(async () => {
-  await submitHandler('functionaries', values, params.id, setFieldError, '/setting/organization-chart')
+  await submitHandler('functionaries', values, params.id, false, setFieldError, '/tool/functionary')
 })
 
 const { y } = useWindowScroll()

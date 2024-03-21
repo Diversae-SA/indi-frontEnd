@@ -2,15 +2,15 @@
 import { useViewWrapper } from '/@src/stores/viewWrapper'
 
 const viewWrapper = useViewWrapper()
-viewWrapper.setPageTitle('Perfil de Configuración')
+viewWrapper.setPageTitle('Listado de Usuarios')
 
 useHead({
-  title: 'Perfil de Configuración - SEGDOC',
+  title: 'Listado de Usuarios',
 })
 </script>
 
 <template>
   <div class="page-content-inner">
-    <SettingsProfile />
+    <UsersList />
   </div>
 </template>

@@ -12,6 +12,7 @@ export function useSubmitHandler() {
     pathUrl: string,
     values: any,
     params: string | any,
+    formData: boolean,
     setFieldError: (fieldName: any, errorMessage: any) => void,
     routePath: string,
   ) {
@@ -19,7 +20,7 @@ export function useSubmitHandler() {
       isLoading.value = true
       try {
         const url = params ? `${pathUrl}/${params}` : pathUrl
-        const method = params ? 'PUT' : 'POST'
+        const method = params && !formData ? 'PUT' : 'POST'
         await $fetch(url, { method: method, body: values })
         if (params) {
           notify.success(`Datos Actualizados Correctamente!`)

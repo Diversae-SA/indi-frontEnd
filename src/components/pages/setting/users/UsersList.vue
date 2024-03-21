@@ -16,16 +16,17 @@ const columns = [
     orderable: false,
     searchable: false,
     render: function (data: any, type: any) {
-      let imageHtml = '<div class="image-list"><img src="/src/assets/illustrations/images/ImageNotFound.png" alt="Image" /></div>'
-      if (data != null) {
-        if (type === 'display') {
-          imageHtml = '<div class="image-list"><img src="http://localhost/storage/' + data + '" alt="Image" /></div>'
-        }
+      if (data != null && data != '') {
+        return '<div class="image-list"><img src="' + import.meta.env.VITE_API_BASE_URL + '/storage/' + data + '" alt="Image" /></div>'
       }
-      return imageHtml
+      else {
+        return '<div class="image-list"><img src="/src/assets/illustrations/images/ImageNotFound.png" alt="Image" /></div>'
+      }
     },
   },
   { data: 'name', title: 'Nombre de Usuario', typeSearch: 'input' },
+  { data: 'people.name', title: 'Nombre', typeSearch: 'input' },
+  { data: 'people.last_name', title: 'Apellido', typeSearch: 'input' },
   { data: 'email', title: 'Correo Electrónico', typeSearch: 'input' },
   {
     data: 'roles',
@@ -68,14 +69,14 @@ const columns = [
 ]
 const idData = ref(null)
 const emit = defineEmits(['updateTable'])
-const showButtons = ['edit', 'delete']
+const buttonTable = [
+  { button: 'edit', permission: 'users edit' },
+  { button: 'delete', permission: 'users delete' },
+]
 const updateTableEvent = ref(false)
 
 const handleEdit = (id: number) => {
-  router.push({
-    name: '/setting/profile-settings',
-    params: { id },
-  })
+  router.push('/setting/users/update/' + id)
 }
 
 const handleDelete = (data: any) => {
@@ -87,7 +88,7 @@ async function DeletedTraining() {
   try {
     updateTableEvent.value = false
     emit('updateTable')
-    const res = await $fetch(`/users/${idData.value}`, { method: 'DELETED' })
+    const res = await $fetch(`/users/${idData.value}`, { method: 'DELETE' })
     modalDeleted.value = false
     updateTableEvent.value = true
     emit('updateTable')
@@ -118,17 +119,13 @@ async function DeletedTraining() {
         to: '/app',
       },
       {
-        label: 'Perfil de Configuración',
-        to: '/setting/profile-settings'
-      },
-      {
         label: 'Lista de Usuarios',
       },
     ]"
   />
 
   <div
-    v-if="hasPermission('program create users')"
+    v-if="hasPermission('users create')"
     class="list-flex-toolbar flex-list-v1"
   >
     <VButtons>
@@ -146,7 +143,7 @@ async function DeletedTraining() {
     :columns="columns"
     server-side-url="users"
     :update-table-event="updateTableEvent"
-    :show-buttons="showButtons"
+    :button-table="buttonTable"
     :search-columns="true"
     @edit="handleEdit"
     @delete="handleDelete"

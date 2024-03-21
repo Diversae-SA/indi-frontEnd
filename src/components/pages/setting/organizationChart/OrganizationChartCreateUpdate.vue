@@ -83,7 +83,7 @@ onMounted(async () => {
 
 // -------------Save or Update ----------------------------
 const onSubmit = handleSubmit(async () => {
-  await submitHandler('departamentos', values, params.id, setFieldError, '/setting/organization-chart')
+  await submitHandler('departamentos', values, params.id, false, setFieldError, '/setting/organization-chart')
 })
 
 </script>

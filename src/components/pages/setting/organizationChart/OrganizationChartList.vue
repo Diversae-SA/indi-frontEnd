@@ -58,7 +58,7 @@ async function DeleteItem() {
   />
 
   <div
-    v-if="hasPermission('roles create')"
+    v-if="hasPermission('organizationsChart create')"
     class="list-flex-toolbar flex-list-v1"
   >
     <VButtons>

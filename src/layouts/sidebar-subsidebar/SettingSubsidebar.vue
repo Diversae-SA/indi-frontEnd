@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { hasPermission } from '/@src/utils/permissions'
+
 const emit = defineEmits(['close'])
 </script>
 
@@ -27,7 +29,7 @@ const emit = defineEmits(['close'])
       data-simplebar
     >
       <ul>
-        <li>
+        <li v-if="hasPermission('program roles')">
           <RouterLink to="/setting/rol">
             <i
               aria-hidden="true"
@@ -36,13 +38,22 @@ const emit = defineEmits(['close'])
             Roles y Permisos
           </RouterLink>
         </li>
-        <li>
+        <li v-if="hasPermission('program organizationsChart')">
           <RouterLink to="/setting/organization-chart">
             <i
               aria-hidden="true"
               class="lnil lnil-hierchy-alt pr-2"
             />
             Organigrama
+          </RouterLink>
+        </li>
+        <li v-if="hasPermission('program users')">
+          <RouterLink to="/setting/users">
+            <i
+              aria-hidden="true"
+              class="lnil lnil-users pr-2"
+            />
+            Usuarios
           </RouterLink>
         </li>
       </ul>

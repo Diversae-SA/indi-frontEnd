@@ -37,7 +37,7 @@ const handleDelete = (data: any) => {
 async function DeleteItem() {
   updateTableEvent.value = false
   emit('updateTable')
-  await deleteHandler('/functionary', idData.value)
+  await deleteHandler('functionaries', idData.value)
   modalDeleted.value = false
   updateTableEvent.value = true
   emit('updateTable')

@@ -12,18 +12,21 @@ const isLoading = ref(false)
 
 const name = userSession.user!.name
 const email = userSession.user!.email
+const profile = import.meta.env.VITE_API_BASE_URL + '/storage/' + userSession.user!.profile_path
 async function logout() {
   if (!isLoading.value) {
     isLoading.value = true
 
     try {
-      await api.post('logout').then(function() {
+      await api.post('logout').then(function () {
         userSession.logoutUser()
         router.push('/')
       })
-    } catch (err: any) {
+    }
+    catch (err: any) {
       notify.error(useLaravelError(err))
-    } finally {
+    }
+    finally {
       isLoading.value = false
     }
   }
@@ -45,7 +48,7 @@ async function logout() {
         @keydown.space.prevent="toggle"
         @click="toggle"
       >
-        <VAvatar picture="/images/avatars/svg/vuero-1.svg" />
+        <VAvatar :picture="profile ?? '/images/avatars/svg/vuero-1.svg'" />
       </a>
     </template>
 
@@ -53,7 +56,7 @@ async function logout() {
       <div class="dropdown-head">
         <VAvatar
           size="large"
-          picture="/images/avatars/svg/vuero-1.svg"
+          :picture="profile ?? '/images/avatars/svg/vuero-1.svg'"
         />
 
         <div class="meta">
@@ -61,80 +64,6 @@ async function logout() {
           <span>{{ email }}</span>
         </div>
       </div>
-
-<!--      <a-->
-<!--        href="#"-->
-<!--        role="menuitem"-->
-<!--        class="dropdown-item is-media"-->
-<!--      >-->
-<!--        <div class="icon">-->
-<!--          <i-->
-<!--            aria-hidden="true"-->
-<!--            class="lnil lnil-user-alt"-->
-<!--          />-->
-<!--        </div>-->
-<!--        <div class="meta">-->
-<!--          <span>Perfil</span>-->
-<!--          <span>View your profile</span>-->
-<!--        </div>-->
-<!--      </a>-->
-
-<!--      <hr class="dropdown-divider">-->
-
-<!--      <a-->
-<!--        href="#"-->
-<!--        role="menuitem"-->
-<!--        class="dropdown-item is-media"-->
-<!--      >-->
-<!--        <div class="icon">-->
-<!--          <i-->
-<!--            aria-hidden="true"-->
-<!--            class="lnil lnil-briefcase"-->
-<!--          />-->
-<!--        </div>-->
-<!--        <div class="meta">-->
-<!--          <span>Projects</span>-->
-<!--          <span>All my projects</span>-->
-<!--        </div>-->
-<!--      </a>-->
-
-<!--      <a-->
-<!--        href="#"-->
-<!--        role="menuitem"-->
-<!--        class="dropdown-item is-media"-->
-<!--      >-->
-<!--        <div class="icon">-->
-<!--          <i-->
-<!--            aria-hidden="true"-->
-<!--            class="lnil lnil-users-alt"-->
-<!--          />-->
-<!--        </div>-->
-<!--        <div class="meta">-->
-<!--          <span>Team</span>-->
-<!--          <span>Manage your team</span>-->
-<!--        </div>-->
-<!--      </a>-->
-
-<!--      <hr class="dropdown-divider">-->
-
-      <a
-        href="#"
-        role="menuitem"
-        class="dropdown-item is-media"
-      >
-        <div class="icon">
-          <i
-            aria-hidden="true"
-            class="lnil lnil-cog"
-          />
-        </div>
-        <div class="meta">
-          <span>Ajustes</span>
-          <span>Ajustes de cuenta</span>
-        </div>
-      </a>
-
-<!--      <hr class="dropdown-divider">-->
 
       <div class="dropdown-item is-button">
         <VButton

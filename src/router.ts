@@ -1,6 +1,7 @@
 import { createMemoryHistory, createRouter as createClientRouter, createWebHistory } from 'vue-router'
 import layoutAuth from '/@src/pages/auth.vue'
 import layoutApp from '/@src/pages/app.vue'
+import { hasPermission } from '/@src/utils/permissions'
 
 const routes = [
   {
@@ -32,14 +33,18 @@ const routes = [
         props: true,
       },
 
-      // --------- Tool ---------- --------------------------------------
+      // ---- TOOL -------------------------------------------------------
+
+      // ---------------------------- Department -------------------------
       {
         component: () => import('/@src/pages/tool/departments.vue'),
         path: '/tool/departments',
         name: '/tool/departments',
         props: true,
+        meta: { permission: 'program departments' },
       },
-      // ---------------------------- Functionaries ---------------------
+
+      // ---------------------------- Functionaries ----------------------
       {
         component: () => import('/@src/pages/tool/functionaries/functionary.vue'),
         path: '/tool/functionary',
@@ -62,17 +67,9 @@ const routes = [
         meta: { permission: 'functionaries edit' },
       },
 
-      // --------- Profile Setting --------------------------------------
-      {
-        component: () => import('/@src/pages/setting/profile-settings.vue'),
-        path: '/setting/profile-settings',
-        name: '/setting/profile-settings',
-        props: true,
-      },
+      // ----- SETTINGS --------------------------------------------------
 
-      // ---------------------------- SETTINGS --------------------------
-
-      // ---------------------------- Organization Chart ----------------
+      // ---------------------------- Organization Chart -----------------
       {
         component: () => import('/@src/pages/setting/organizationChart/organizationChart.vue'),
         path: '/setting/organization-chart',
@@ -95,7 +92,7 @@ const routes = [
         meta: { permission: 'organizationsChart edit' },
       },
 
-      // ---------------------------- Rol and Permission ----------------
+      // ---------------------------- Rol and Permission -----------------
       {
         component: () => import('/@src/pages/setting/role/rol.vue'),
         path: '/setting/rol',
@@ -118,12 +115,27 @@ const routes = [
         meta: { permission: 'roles edit' },
       },
 
-      // ---------------------------- Users -----------------------------
+      // ---------------------------- Users ------------------------------
       {
-        component: () => import('/@src/pages/setting/users.vue'),
-        path: '/setting/profile-settings/users',
-        name: '/setting/profile-settings/users',
+        component: () => import('/@src/pages/setting/user/user.vue'),
+        path: '/setting/users',
+        name: '/setting/users',
         props: true,
+        meta: { permission: 'program users' },
+      },
+      {
+        component: () => import('/@src/pages/setting/user/user-create.vue'),
+        path: '/setting/users/create',
+        name: 'setting/users/create',
+        props: true,
+        meta: { permission: 'users create' },
+      },
+      {
+        component: () => import('/@src/pages/setting/user/user-update.vue'),
+        path: '/setting/users/update/:id',
+        name: '/setting/users/update',
+        props: true,
+        meta: { permission: 'users edit' },
       },
     ],
   },
@@ -137,7 +149,7 @@ const routes = [
 ]
 
 export function createRouter() {
-  return createClientRouter({
+  const router = createClientRouter({
     history: import.meta.env.SSR ? createMemoryHistory() : createWebHistory(),
     routes,
     scrollBehavior: (to, from, savedPosition) => {
@@ -181,4 +193,15 @@ export function createRouter() {
       }
     },
   })
+  router.beforeEach((to, from, next) => {
+    const permission = to.meta.permission as string
+    if (!permission || hasPermission(permission)) {
+      next()
+    }
+    else {
+      next('/error')
+    }
+  })
+
+  return router
 }

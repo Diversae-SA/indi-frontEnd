@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { hasPermission } from '/@src/utils/permissions'
+
 const emit = defineEmits(['close'])
 </script>
 
@@ -27,7 +29,7 @@ const emit = defineEmits(['close'])
       data-simplebar
     >
       <ul>
-        <li>
+        <li v-if="hasPermission('program departments')">
           <RouterLink to="/tool/departments">
             <i
               aria-hidden="true"
@@ -36,7 +38,7 @@ const emit = defineEmits(['close'])
             Departamento
           </RouterLink>
         </li>
-        <li>
+        <li v-if="hasPermission('program functionaries')">
           <RouterLink to="/tool/functionary">
             <i
               aria-hidden="true"

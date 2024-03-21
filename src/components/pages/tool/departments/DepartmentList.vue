@@ -24,8 +24,8 @@ const columns = [
 const idData = ref()
 const emit = defineEmits(['updateTable'])
 const buttonTable = [
-  { button: 'edit', permission: 'organizations edit' },
-  { button: 'delete', permission: 'organizations delete' },
+  { button: 'edit', permission: 'departments edit' },
+  { button: 'delete', permission: 'departments delete' },
 ]
 const updateTableEvent = ref(false)
 
@@ -135,7 +135,7 @@ async function DeletedTraining() {
   />
 
   <div
-    v-if="hasPermission('program create users')"
+    v-if="hasPermission('departments create')"
     class="list-flex-toolbar flex-list-v1"
   >
     <VButtons>
