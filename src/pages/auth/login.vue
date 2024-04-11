@@ -127,7 +127,6 @@ useHead({
           <form @submit.prevent="submitHandler">
             <div class="login-form">
               <!-- Username -->
-
               <VField id="email">
                 <VControl icon="feather:user">
                   <VInput

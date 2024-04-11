@@ -130,7 +130,7 @@ async function resetTimer() {
   clearTimeout(timeoutId)
   if (router.currentRoute.value.fullPath !== '/') {
     timeoutId = setTimeout(async () => {
-      const currentPath = router.currentRoute.value.fullPath;
+      const currentPath = router.currentRoute.value.fullPath
       await api.post('logout')
       await userSession.logoutUser()
       await router.push({ path: '/', query: { redirect: currentPath } })

@@ -11,7 +11,7 @@ export const useLaravelError = (err: any) => {
 
       break
     case 403:
-      message = "¡No tienes permiso para ver esta página!"
+      message = '¡No tienes permiso para ver esta página!'
 
       break
     case 422:

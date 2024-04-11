@@ -10,7 +10,8 @@ export default definePlugin(async ({ router, pinia }) => {
     try {
       const { data: user } = await api.get('/user')
       userSession.setUser(user)
-    } catch (err) {
+    }
+    catch (err) {
       await userSession.logoutUser()
     }
   }
