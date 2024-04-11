@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { SidebarTheme } from '/@src/components/navigation/desktop/Sidebar.vue'
 import { useViewWrapper } from '/@src/stores/viewWrapper'
-import { hasPermission } from '/@src/utils/permissions'
+// import { hasPermission } from '/@src/utils/permissions'
 
 const props = withDefaults(
   defineProps<{
