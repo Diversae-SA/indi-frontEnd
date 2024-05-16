@@ -67,6 +67,29 @@ const routes = [
         meta: { permission: 'functionaries edit' },
       },
 
+      // ---------------------------- Dependencia -----------------
+      {
+        component: () => import('/@src/pages/tool/functionaryDependency/dependency.vue'),
+        path: '/tool/dependencies',
+        name: 'tool/dependencies',
+        props: true,
+        meta: { permission: 'program dependencies' },
+      },
+      {
+        component: () => import('/@src/pages/tool/functionaryDependency/dependency-create.vue'),
+        path: '/tool/dependencies/create',
+        name: 'tool/dependencies/create',
+        props: true,
+        meta: { permission: 'dependencies create' },
+      },
+      {
+        component: () => import('/@src/pages/tool/functionaryDependency/dependency-update.vue'),
+        path: '/tool/dependencies/update/:id',
+        name: 'tool/dependencies/update',
+        props: true,
+        meta: { permission: 'dependencies edit' },
+      },
+
       // ----- SETTINGS --------------------------------------------------
 
       // ---------------------------- Organization Chart -----------------

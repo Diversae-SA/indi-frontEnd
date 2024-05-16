@@ -13,7 +13,7 @@ async function main() {
   })
 
   // Copy oniguruma wasm source used by shiki to render code blocks
-  // Not same folder because it a dependency of shiki, pnpm will hoist it
+  // Not same folder because it a dependencies of shiki, pnpm will hoist it
   await copy(
     'node_modules/vscode-oniguruma/release/onig.wasm',
     'public/shiki/dist/onig.wasm',

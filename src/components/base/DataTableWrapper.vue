@@ -481,7 +481,7 @@ async function generateAndOpenPDF() {
                 style: 'footer',
               },
               {
-                text: 'Sistema-RUP',
+                text: 'SGDOC - Benitech',
                 alignment: 'center',
                 style: 'footer',
               },

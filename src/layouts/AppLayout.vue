@@ -251,3 +251,8 @@ watch(
     </VViewWrapper>
   </div>
 </template>
+<style lang="scss">
+.main-sidebar {
+  background-color: var(--placeholder-light-10);
+}
+</style>

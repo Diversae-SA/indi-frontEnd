@@ -57,6 +57,9 @@ declare module 'vue-router/auto/routes' {
     '/tool/functionaries/functionary': RouteRecordInfo<'/tool/functionaries/functionary', '/tool/functionaries/functionary', Record<never, never>, Record<never, never>>,
     '/tool/functionaries/functionary-create': RouteRecordInfo<'/tool/functionaries/functionary-create', '/tool/functionaries/functionary-create', Record<never, never>, Record<never, never>>,
     '/tool/functionaries/functionary-update': RouteRecordInfo<'/tool/functionaries/functionary-update', '/tool/functionaries/functionary-update', Record<never, never>, Record<never, never>>,
+    '/tool/functionaryDependency/dependency': RouteRecordInfo<'/tool/functionaryDependency/dependency', '/tool/functionaryDependency/dependency', Record<never, never>, Record<never, never>>,
+    '/tool/functionaryDependency/dependency-create': RouteRecordInfo<'/tool/functionaryDependency/dependency-create', '/tool/functionaryDependency/dependency-create', Record<never, never>, Record<never, never>>,
+    '/tool/functionaryDependency/dependency-update': RouteRecordInfo<'/tool/functionaryDependency/dependency-update', '/tool/functionaryDependency/dependency-update', Record<never, never>, Record<never, never>>,
   }
 }
 

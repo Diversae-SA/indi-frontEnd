@@ -16,6 +16,8 @@ declare module 'vue' {
     DashboardsSubsidebar: typeof import('./../src/layouts/sidebar-subsidebar/DashboardsSubsidebar.vue')['default']
     DataTableWrapper: typeof import('./../src/components/base/DataTableWrapper.vue')['default']
     DepartmentList: typeof import('./../src/components/pages/tool/departments/DepartmentList.vue')['default']
+    DependencyCreateUpdate: typeof import('./../src/components/pages/tool/dependencies/DependencyCreateUpdate.vue')['default']
+    DependencyList: typeof import('./../src/components/pages/tool/dependencies/DependencyList.vue')['default']
     FunctionaryCreateUpdate: typeof import('./../src/components/pages/tool/functioraries/FunctionaryCreateUpdate.vue')['default']
     FunctionaryList: typeof import('./../src/components/pages/tool/functioraries/FunctionaryList.vue')['default']
     IcoLogo: typeof import('./../src/components/svg/IcoLogo.vue')['default']

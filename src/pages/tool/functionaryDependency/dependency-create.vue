@@ -2,15 +2,15 @@
 import { useViewWrapper } from '/@src/stores/viewWrapper'
 
 const viewWrapper = useViewWrapper()
-viewWrapper.setPageTitle('Listado de Funcionarios')
+viewWrapper.setPageTitle('Asignar Dependencia')
 
 useHead({
-  title: 'Listado de Funcionarios',
+  title: 'Asignar Dependencia',
 })
 </script>
 
 <template>
   <div class="page-content-inner">
-    <FunctionaryList />
+    <DependencyCreateUpdate />
   </div>
 </template>
