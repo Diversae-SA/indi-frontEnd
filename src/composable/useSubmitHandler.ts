@@ -40,7 +40,7 @@ export function useSubmitHandler() {
             }
           }
         }
-        notify.error('Error al guardar el formulario')
+        notify.error('Error al guardar los datos')
       }
       finally {
         isLoading.value = false

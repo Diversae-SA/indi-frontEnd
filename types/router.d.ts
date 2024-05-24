@@ -44,6 +44,8 @@ declare module 'vue-router/auto/routes' {
     '/app/': RouteRecordInfo<'/app/', '/app', Record<never, never>, Record<never, never>>,
     '/auth': RouteRecordInfo<'/auth', '/auth', Record<never, never>, Record<never, never>>,
     '/auth/login': RouteRecordInfo<'/auth/login', '/auth/login', Record<never, never>, Record<never, never>>,
+    '/expendiente/listExpediente/expedientes': RouteRecordInfo<'/expendiente/listExpediente/expedientes', '/expendiente/listExpediente/expedientes', Record<never, never>, Record<never, never>>,
+    '/expendiente/listExpediente/expedientes-cu': RouteRecordInfo<'/expendiente/listExpediente/expedientes-cu', '/expendiente/listExpediente/expedientes-cu', Record<never, never>, Record<never, never>>,
     '/setting/organizationChart/organizationChart': RouteRecordInfo<'/setting/organizationChart/organizationChart', '/setting/organizationChart/organizationChart', Record<never, never>, Record<never, never>>,
     '/setting/organizationChart/organizationChart-create': RouteRecordInfo<'/setting/organizationChart/organizationChart-create', '/setting/organizationChart/organizationChart-create', Record<never, never>, Record<never, never>>,
     '/setting/organizationChart/organizationChart-update': RouteRecordInfo<'/setting/organizationChart/organizationChart-update', '/setting/organizationChart/organizationChart-update', Record<never, never>, Record<never, never>>,
@@ -54,6 +56,8 @@ declare module 'vue-router/auto/routes' {
     '/setting/user/user-create': RouteRecordInfo<'/setting/user/user-create', '/setting/user/user-create', Record<never, never>, Record<never, never>>,
     '/setting/user/user-update': RouteRecordInfo<'/setting/user/user-update', '/setting/user/user-update', Record<never, never>, Record<never, never>>,
     '/tool/departments': RouteRecordInfo<'/tool/departments', '/tool/departments', Record<never, never>, Record<never, never>>,
+    '/tool/districts/district': RouteRecordInfo<'/tool/districts/district', '/tool/districts/district', Record<never, never>, Record<never, never>>,
+    '/tool/districts/district-cu': RouteRecordInfo<'/tool/districts/district-cu', '/tool/districts/district-cu', Record<never, never>, Record<never, never>>,
     '/tool/externalEntity/entity': RouteRecordInfo<'/tool/externalEntity/entity', '/tool/externalEntity/entity', Record<never, never>, Record<never, never>>,
     '/tool/externalEntity/entity-cu': RouteRecordInfo<'/tool/externalEntity/entity-cu', '/tool/externalEntity/entity-cu', Record<never, never>, Record<never, never>>,
     '/tool/functionaries/functionary': RouteRecordInfo<'/tool/functionaries/functionary', '/tool/functionaries/functionary', Record<never, never>, Record<never, never>>,
@@ -62,6 +66,11 @@ declare module 'vue-router/auto/routes' {
     '/tool/functionaryDependency/dependency': RouteRecordInfo<'/tool/functionaryDependency/dependency', '/tool/functionaryDependency/dependency', Record<never, never>, Record<never, never>>,
     '/tool/functionaryDependency/dependency-create': RouteRecordInfo<'/tool/functionaryDependency/dependency-create', '/tool/functionaryDependency/dependency-create', Record<never, never>, Record<never, never>>,
     '/tool/functionaryDependency/dependency-update': RouteRecordInfo<'/tool/functionaryDependency/dependency-update', '/tool/functionaryDependency/dependency-update', Record<never, never>, Record<never, never>>,
+    '/tool/suppliers/supplier': RouteRecordInfo<'/tool/suppliers/supplier', '/tool/suppliers/supplier', Record<never, never>, Record<never, never>>,
+    '/tool/suppliers/supplier-cu': RouteRecordInfo<'/tool/suppliers/supplier-cu', '/tool/suppliers/supplier-cu', Record<never, never>, Record<never, never>>,
+    '/tool/typeData/typeData': RouteRecordInfo<'/tool/typeData/typeData', '/tool/typeData/typeData', Record<never, never>, Record<never, never>>,
+    '/tool/typeFiles/typeFile': RouteRecordInfo<'/tool/typeFiles/typeFile', '/tool/typeFiles/typeFile', Record<never, never>, Record<never, never>>,
+    '/tool/typeFiles/typeFile-cu': RouteRecordInfo<'/tool/typeFiles/typeFile-cu', '/tool/typeFiles/typeFile-cu', Record<never, never>, Record<never, never>>,
   }
 }
 

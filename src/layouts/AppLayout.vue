@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { SidebarTheme } from '/@src/components/navigation/desktop/Sidebar.vue'
 import { useViewWrapper } from '/@src/stores/viewWrapper'
+import ExpedienteSubsidebar from '/@src/layouts/sidebar-subsidebar/ExpedienteSubsidebar.vue'
 // import { hasPermission } from '/@src/utils/permissions'
 
 const props = withDefaults(
@@ -153,6 +154,22 @@ watch(
             />
           </a>
         </li>
+        <li>
+          <a
+            :class="[activeMobileSubsidebar === 'expediente' && 'is-active']"
+            data-content="Expedientes"
+            tabindex="0"
+            role="button"
+            @keydown.space.prevent="switchSidebar('expediente')"
+            @click="switchSidebar('expediente')"
+          >
+            <i
+              aria-hidden="true"
+              class="iconify sidebar-svg"
+              data-icon="feather:trello"
+            />
+          </a>
+        </li>
       </template>
       <template #bottom-links>
         <!-- Settings -->
@@ -185,6 +202,12 @@ watch(
     <Transition name="slide-x">
       <ToolSubsidebar
         v-if="isDesktopSidebarOpen && activeMobileSubsidebar === 'tool'"
+        @close="isDesktopSidebarOpen = false"
+      />
+    </Transition>
+    <Transition name="slide-x">
+      <ExpedienteSubsidebar
+        v-if="isDesktopSidebarOpen && activeMobileSubsidebar === 'expediente'"
         @close="isDesktopSidebarOpen = false"
       />
     </Transition>

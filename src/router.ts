@@ -44,6 +44,29 @@ const routes = [
         meta: { permission: 'program departments' },
       },
 
+      // ---------------------------- Distritos ----------------------
+      {
+        component: () => import('/@src/pages/tool/districts/district.vue'),
+        path: '/tool/districts',
+        name: 'tool/districts',
+        props: true,
+        meta: { permission: 'program districts' },
+      },
+      {
+        component: () => import('/@src/pages/tool/districts/district-cu.vue'),
+        path: '/tool/districts/create',
+        name: 'tool/districts/create',
+        props: true,
+        meta: { permission: 'districts create' },
+      },
+      {
+        component: () => import('/@src/pages/tool/districts/district-cu.vue'),
+        path: '/tool/districts/update/:id',
+        name: '/tool/districts/update',
+        props: true,
+        meta: { permission: 'districts edit' },
+      },
+
       // ---------------------------- Functionaries ----------------------
       {
         component: () => import('/@src/pages/tool/functionaries/functionary.vue'),
@@ -99,18 +122,90 @@ const routes = [
         meta: { permission: 'program externalEntities' },
       },
       {
-        component: () => import('/src/pages/tool/externalEntity/entity-cu.vue'),
+        component: () => import('/@src/pages/tool/externalEntity/entity-cu.vue'),
         path: '/tool/externalEntity/create',
         name: 'tool/externalEntity/create',
         props: true,
         meta: { permission: 'externalEntities create' },
       },
       {
-        component: () => import('/src/pages/tool/externalEntity/entity-cu.vue'),
+        component: () => import('/@src/pages/tool/externalEntity/entity-cu.vue'),
         path: '/tool/externalEntity/update/:id',
         name: 'tool/externalEntity/update',
         props: true,
         meta: { permission: 'externalEntities edit' },
+      },
+
+      // ---------------------------- Proveedores ------------------------
+      {
+        component: () => import('/@src/pages/tool/suppliers/supplier.vue'),
+        path: '/tool/suppliers',
+        name: 'tool/suppliers',
+        props: true,
+        meta: { permission: 'program suppliers' },
+      },
+      {
+        component: () => import('/@src/pages/tool/suppliers/supplier-cu.vue'),
+        path: '/tool/suppliers/create',
+        name: 'tool/suppliers/create',
+        props: true,
+        meta: { permission: 'suppliers create' },
+      },
+      {
+        component: () => import('/@src/pages/tool/suppliers/supplier-cu.vue'),
+        path: '/tool/suppliers/update/:id',
+        name: 'tool/suppliers/update',
+        props: true,
+        meta: { permission: 'suppliers edit' },
+      },
+
+      // ---------------------------- Tipo de Datos ------------------------
+      {
+        component: () => import('/@src/pages/tool/typeData/typeData.vue'),
+        path: '/tool/type_data',
+        name: 'tool/type_data',
+        props: true,
+        meta: { permission: 'program type_data' },
+      },
+
+      // ---------------------------- Tipos de Expedientes -----------------
+      {
+        component: () => import('/@src/pages/tool/typeFiles/typeFile.vue'),
+        path: '/tool/type_files',
+        name: 'tool/type_files',
+        props: true,
+        meta: { permission: 'program type_files' },
+      },
+      {
+        component: () => import('/@src/pages/tool/typeFiles/typeFile-cu.vue'),
+        path: '/tool/type_files/create',
+        name: 'tool/type_files/create',
+        props: true,
+        meta: { permission: 'type_files create' },
+      },
+      {
+        component: () => import('/@src/pages/tool/typeFiles/typeFile-cu.vue'),
+        path: '/tool/type_files/update/:id',
+        name: 'tool/type_files/update',
+        props: true,
+        meta: { permission: 'type_files edit' },
+      },
+
+      // ----- EXPEDIENTES --------------------------------------------------
+      // ---------------------------- Lista de Expedientes -----------------
+      {
+        component: () => import('/@src/pages/expendiente/listExpediente/expedientes.vue'),
+        path: '/expediente/expediente_list',
+        name: 'expediente/expediente_list',
+        props: true,
+        meta: { permission: 'program expedientes' },
+      },
+      {
+        component: () => import('/@src/pages/expendiente/listExpediente/expedientes-cu.vue'),
+        path: '/expediente/expediente_list/create',
+        name: 'expediente/expediente_list/create',
+        props: true,
+        meta: { permission: 'expedientes create' },
       },
 
       // ----- SETTINGS --------------------------------------------------

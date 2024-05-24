@@ -1,4 +1,4 @@
-//@import url('https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css');
+//@import url('https://cdn.datatables.net/2.0.7/css/dataTables.dataTables.css');
 
 .datatable {
   background-color: var(--primary--color-invert);
@@ -42,11 +42,6 @@ table.dataTable tfoot {
     vertical-align: bottom !important;
   }
 }
-
-
-/*.table thead tr {
-  background-color: var(--primary--light-color);
-}*/
 
 .dt-container .dt-search {
   float: left;
@@ -178,21 +173,100 @@ table.dataTable thead > tr > td.sorting_desc_disabled {
   padding-right: 26px;
 }
 
-table thead > tr > th.sorting:before, table thead > tr > th.sorting_asc:before,
-table thead > tr > th.sorting_desc:before, table thead > tr > th.sorting_asc_disabled:before,
-table thead > tr > th.sorting_desc_disabled:before, table thead > tr > td.sorting:before,
-table thead > tr > td.sorting_asc:before, table thead > tr > td.sorting_desc:before,
-table thead > tr > td.sorting_asc_disabled:before,
-table thead > tr > td.sorting_desc_disabled:before {
+table.dataTable thead > tr > th:active,
+table.dataTable thead > tr > td:active {
+  outline: none;
+}
+table.dataTable thead > tr > th.dt-orderable-asc span.dt-column-order:before, table.dataTable thead > tr > th.dt-ordering-asc span.dt-column-order:before,
+table.dataTable thead > tr > td.dt-orderable-asc span.dt-column-order:before,
+table.dataTable thead > tr > td.dt-ordering-asc span.dt-column-order:before {
+  position: absolute;
+  display: block;
   bottom: 50%;
   content: "▲";
   content: "▲"/"";
 }
-
-table.dataTable thead > tr > th.sorting:after, table.dataTable thead > tr > th.sorting_asc:after, table.dataTable thead > tr > th.sorting_desc:after, table.dataTable thead > tr > th.sorting_asc_disabled:after, table.dataTable thead > tr > th.sorting_desc_disabled:after, table.dataTable thead > tr > td.sorting:after, table.dataTable thead > tr > td.sorting_asc:after, table.dataTable thead > tr > td.sorting_desc:after, table.dataTable thead > tr > td.sorting_asc_disabled:after, table.dataTable thead > tr > td.sorting_desc_disabled:after {
+table.dataTable thead > tr > th.dt-orderable-desc span.dt-column-order:after, table.dataTable thead > tr > th.dt-ordering-desc span.dt-column-order:after,
+table.dataTable thead > tr > td.dt-orderable-desc span.dt-column-order:after,
+table.dataTable thead > tr > td.dt-ordering-desc span.dt-column-order:after {
+  position: absolute;
+  display: block;
   top: 50%;
   content: "▼";
   content: "▼"/"";
+}
+table.dataTable thead > tr > th.dt-orderable-asc, table.dataTable thead > tr > th.dt-orderable-desc, table.dataTable thead > tr > th.dt-ordering-asc, table.dataTable thead > tr > th.dt-ordering-desc,
+table.dataTable thead > tr > td.dt-orderable-asc,
+table.dataTable thead > tr > td.dt-orderable-desc,
+table.dataTable thead > tr > td.dt-ordering-asc,
+table.dataTable thead > tr > td.dt-ordering-desc {
+  position: relative;
+  padding-right: 30px;
+}
+table.dataTable thead > tr > th.dt-orderable-asc span.dt-column-order, table.dataTable thead > tr > th.dt-orderable-desc span.dt-column-order, table.dataTable thead > tr > th.dt-ordering-asc span.dt-column-order, table.dataTable thead > tr > th.dt-ordering-desc span.dt-column-order,
+table.dataTable thead > tr > td.dt-orderable-asc span.dt-column-order,
+table.dataTable thead > tr > td.dt-orderable-desc span.dt-column-order,
+table.dataTable thead > tr > td.dt-ordering-asc span.dt-column-order,
+table.dataTable thead > tr > td.dt-ordering-desc span.dt-column-order {
+  position: absolute;
+  right: 12px;
+  top: 0;
+  bottom: 0;
+  width: 12px;
+}
+table.dataTable thead > tr > th.dt-orderable-asc span.dt-column-order:before, table.dataTable thead > tr > th.dt-orderable-asc span.dt-column-order:after, table.dataTable thead > tr > th.dt-orderable-desc span.dt-column-order:before, table.dataTable thead > tr > th.dt-orderable-desc span.dt-column-order:after, table.dataTable thead > tr > th.dt-ordering-asc span.dt-column-order:before, table.dataTable thead > tr > th.dt-ordering-asc span.dt-column-order:after, table.dataTable thead > tr > th.dt-ordering-desc span.dt-column-order:before, table.dataTable thead > tr > th.dt-ordering-desc span.dt-column-order:after,
+table.dataTable thead > tr > td.dt-orderable-asc span.dt-column-order:before,
+table.dataTable thead > tr > td.dt-orderable-asc span.dt-column-order:after,
+table.dataTable thead > tr > td.dt-orderable-desc span.dt-column-order:before,
+table.dataTable thead > tr > td.dt-orderable-desc span.dt-column-order:after,
+table.dataTable thead > tr > td.dt-ordering-asc span.dt-column-order:before,
+table.dataTable thead > tr > td.dt-ordering-asc span.dt-column-order:after,
+table.dataTable thead > tr > td.dt-ordering-desc span.dt-column-order:before,
+table.dataTable thead > tr > td.dt-ordering-desc span.dt-column-order:after {
+  left: 0;
+  opacity: 0.125;
+  line-height: 9px;
+  font-size: 0.8em;
+}
+table.dataTable thead > tr > th.dt-orderable-asc, table.dataTable thead > tr > th.dt-orderable-desc,
+table.dataTable thead > tr > td.dt-orderable-asc,
+table.dataTable thead > tr > td.dt-orderable-desc {
+  cursor: pointer;
+}
+table.dataTable thead > tr > th.dt-orderable-asc:hover, table.dataTable thead > tr > th.dt-orderable-desc:hover,
+table.dataTable thead > tr > td.dt-orderable-asc:hover,
+table.dataTable thead > tr > td.dt-orderable-desc:hover {
+  outline: 2px solid rgba(0, 0, 0, 0.05);
+  outline-offset: -2px;
+}
+table.dataTable thead > tr > th.dt-ordering-asc span.dt-column-order:before, table.dataTable thead > tr > th.dt-ordering-desc span.dt-column-order:after,
+table.dataTable thead > tr > td.dt-ordering-asc span.dt-column-order:before,
+table.dataTable thead > tr > td.dt-ordering-desc span.dt-column-order:after {
+  opacity: 0.6;
+}
+table.dataTable thead > tr > th.sorting_desc_disabled span.dt-column-order:after, table.dataTable thead > tr > th.sorting_asc_disabled span.dt-column-order:before,
+table.dataTable thead > tr > td.sorting_desc_disabled span.dt-column-order:after,
+table.dataTable thead > tr > td.sorting_asc_disabled span.dt-column-order:before {
+  display: none;
+}
+table.dataTable thead > tr > th:active,
+table.dataTable thead > tr > td:active {
+  outline: none;
+}
+
+div.dt-scroll-body > table.dataTable > thead > tr > th,
+div.dt-scroll-body > table.dataTable > thead > tr > td {
+  overflow: hidden;
+}
+
+:root.dark table.dataTable thead > tr > th.dt-orderable-asc:hover, :root.dark table.dataTable thead > tr > th.dt-orderable-desc:hover,
+:root.dark table.dataTable thead > tr > td.dt-orderable-asc:hover,
+:root.dark table.dataTable thead > tr > td.dt-orderable-desc:hover,
+:root[data-bs-theme=dark] table.dataTable thead > tr > th.dt-orderable-asc:hover,
+:root[data-bs-theme=dark] table.dataTable thead > tr > th.dt-orderable-desc:hover,
+:root[data-bs-theme=dark] table.dataTable thead > tr > td.dt-orderable-asc:hover,
+:root[data-bs-theme=dark] table.dataTable thead > tr > td.dt-orderable-desc:hover {
+  outline: 2px solid rgba(255, 255, 255, 0.05);
 }
 
 table.dataTable thead > tr > th.sorting:before, table.dataTable thead > tr > th.sorting:after, table.dataTable thead > tr > th.sorting_asc:before, table.dataTable thead > tr > th.sorting_asc:after, table.dataTable thead > tr > th.sorting_desc:before, table.dataTable thead > tr > th.sorting_desc:after, table.dataTable thead > tr > th.sorting_asc_disabled:before, table.dataTable thead > tr > th.sorting_asc_disabled:after, table.dataTable thead > tr > th.sorting_desc_disabled:before, table.dataTable thead > tr > th.sorting_desc_disabled:after, table.dataTable thead > tr > td.sorting:before, table.dataTable thead > tr > td.sorting:after, table.dataTable thead > tr > td.sorting_asc:before, table.dataTable thead > tr > td.sorting_asc:after, table.dataTable thead > tr > td.sorting_desc:before, table.dataTable thead > tr > td.sorting_desc:after, table.dataTable thead > tr > td.sorting_asc_disabled:before, table.dataTable thead > tr > td.sorting_asc_disabled:after, table.dataTable thead > tr > td.sorting_desc_disabled:before, table.dataTable thead > tr > td.sorting_desc_disabled:after {
@@ -231,10 +305,19 @@ table.dataTable.dtr-inline.collapsed > tbody > tr.parent > th.dtr-control:before
   background-color: var(--primary)
 }
 
-table.dataTable tbody > tr:hover {
-  background-color: var(--placeholder-light-10);
+table.dataTable tbody > tr:hover > * {
+  background-color: var(--placeholder-light-10) !important;
 }
+
 .selected{
+  background-color: var(--placeholder-light-10) !important;
+}
+
+table.dataTable.striped > tbody > tr:nth-child(odd) > *, table.dataTable.display > tbody > tr:nth-child(odd) > * {
+  background-color: var(--placeholder-light-16);
+}
+
+table.dataTable.striped > tbody > tr:nth-child(odd).selected > *, table.dataTable.display > tbody > tr:nth-child(odd).selected > * {
   background-color: var(--placeholder-light-10) !important;
 }
 
@@ -251,12 +334,20 @@ table.dataTable tbody > tr:hover {
     background-color: var(--dark-sidebar-light-5);
   }
 
-  table.dataTable tbody > tr:hover {
-    background-color: var(--dark-sidebar-light-12);
+  table.dataTable tbody > tr:hover > * {
+    background-color: var(--dark-sidebar-light-12) !important;
   }
 
   .selected {
-    background-color: var(--dark-sidebar-light-10) !important;
+    background-color: var(--dark-sidebar-light-16) !important;
+  }
+
+  table.dataTable.striped > tbody > tr:nth-child(odd) > *, table.dataTable.display > tbody > tr:nth-child(odd) > * {
+    background-color: var(--dark-sidebar-light-3);
+  }
+
+  table.dataTable.striped > tbody > tr:nth-child(odd).selected > *, table.dataTable.display > tbody > tr:nth-child(odd).selected > * {
+    background-color: var(--dark-sidebar-light-16) !important;
   }
 
   .datatable, .table-head .table-head-right {
@@ -266,6 +357,15 @@ table.dataTable tbody > tr:hover {
   .search-input, .select-container select {
     background-color: var(--dark-sidebar-light-2);
     border-color: var(--dark-sidebar-light-4);
+    color: var(--dark-dark-text);
+  }
+
+  .search-input, .dt-input {
+    background-color: var(--dark-sidebar-light-1);
+    color: var(--dark-dark-text);
+  }
+  .dt-paging .dt-paging-button {
+    background-color: var(--dark-sidebar-light-1);
     color: var(--dark-dark-text);
   }
 
@@ -362,7 +462,7 @@ div.dt-buttons {
 
 div.dt-buttons > .dt-button, div.dt-buttons > div.dt-button-split .dt-button {
   box-sizing: border-box;
-  margin-left: 0.167em;
+  margin-left: 1.167em;
   margin-right: 0.167em;
   padding: 0.5em 1em;
   cursor: pointer;
@@ -379,20 +479,15 @@ div.dt-buttons > .dt-button, div.dt-buttons > div.dt-button-split .dt-button {
 }
 
 .buttons-collection {
-  //display: none;
   background-color: var(--warning--light-color);
   color: var(--warning--dark-color);
   border: 1px solid transparent;
   border-radius: var(--radius);
-  margin-top: 5px;
+  margin-top: 11px;
 }
 
 div.dt-button-collection {
   position: absolute;
-  //top: 0;
-  //left: 70% !important;
-  //right: 10% !important;
-  //min-width: 200px;
   padding: 0.75em 0;
   border: 1px solid rgba(0, 0, 0, 0.4);
   background-color: var(--primary--color-invert);
@@ -441,12 +536,8 @@ div.dt-button-collection .dt-button-active:after {
   color: inherit;
 }
 
-
 tbody {
   .odd {
-    /*width: 100%;
-    font-family: var(--font), serif;
-    word-break: keep-all;*/
     background-color: var(--placeholder-light-16);
   }
   td {
@@ -499,7 +590,7 @@ tbody {
 }
 
 .page-orientation-button {
-  display: none; /* Oculta los botones de radio */
+  display: none;
 }
 
 .orientation-image {
@@ -532,6 +623,10 @@ tbody {
 .dt-paging {
   float: right;
   margin-top: 15px;
+
+  button {
+    cursor: pointer;
+  }
 
   .next,
   .previous {

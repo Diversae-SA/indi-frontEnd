@@ -1,15 +1,20 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import { useUserSession } from '/@src/stores/userSession'
+import ApexChart from 'vue3-apexcharts'
+import { useSalesSparksCharts } from '/@src/data/widgets/charts/salesSparksChart'
 
 const userSession = useUserSession()
 const { t } = useI18n()
+const router = useRouter()
+const { spark1, spark2, spark3, spark4 } = useSalesSparksCharts()
 
 const name = userSession.user!.name
+const profile = import.meta.env.VITE_API_BASE_URL + '/storage/' + userSession.user!.profile_path
 
 const handleKeydown = (event: KeyboardEvent) => {
   if (event.altKey && event.key === 'n') {
-    alert('Nuevo documento')
+    handleNew()
   }
   if (event.altKey && event.key === 'g') {
     alert('documento Entrante')
@@ -17,9 +22,13 @@ const handleKeydown = (event: KeyboardEvent) => {
   if (event.altKey && event.key === 'l') {
     alert('documento Saliente')
   }
-};
+}
 
-const hoy = new Date();
+const handleNew = () => {
+  router.push('/expediente/expediente_list/create')
+}
+
+const hoy = new Date()
 const calendarAttributes = ref([
   {
     key: 'hoy',
@@ -28,16 +37,15 @@ const calendarAttributes = ref([
     },
     dates: new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate()),
   },
-]);
-
+])
 
 onMounted(() => {
   window.addEventListener('keydown', handleKeydown);
-});
+})
 
 onUnmounted(() => {
   window.removeEventListener('keydown', handleKeydown);
-});
+})
 </script>
 
 <template>
@@ -45,25 +53,11 @@ onUnmounted(() => {
     <!--Personal Dashboard V1-->
     <!--Header-->
     <div class="dashboard-header">
-      <VAvatar
-        picture="/images/avatars/svg/vuero-1.svg"
-        size="large"
-      />
+      <VAvatar :picture="profile ?? '/images/avatars/svg/vuero-1.svg'" size="large" />
       <div class="start">
         <h3>{{ t('auth.logged-in') }}, {{ name }}</h3>
-        <p>Direccion General - INDI</p>
+        <p>INDI - Instituto Paraguayo Del Indigena </p>
       </div>
-<!--      <div class="end">-->
-<!--        <VButton dark="3">-->
-<!--          View Reports-->
-<!--        </VButton>-->
-<!--        <VButton-->
-<!--          color="primary"-->
-<!--          elevated-->
-<!--        >-->
-<!--          Manage Store-->
-<!--        </VButton>-->
-<!--      </div>-->
     </div>
 
     <!--Body-->
@@ -82,6 +76,7 @@ onUnmounted(() => {
                     center
                     m-responsive
                     t-responsive
+                    @click="handleNew"
                   >
                     <template #icon>
                       <i class="lnir lnir-write" aria-hidden="true"></i>
@@ -131,33 +126,67 @@ onUnmounted(() => {
 <!--        </div>-->
 
         <!--Card-->
-        <div class="column is-4">
-          <div class="dashboard-card is-upgrade">
-            <i
-              aria-hidden="true"
-              class="lnil lnil-crown-alt-1"
-            />
+        <div class="column is-12">
+          <div class="dashboard-card">
             <div class="cta-content">
-              <h4>Hey Erik, you're doing great.</h4>
-              <p class="white-text">
-                Start using our team and project management tools
-              </p>
-              <a class="link inverted-text">Learn More</a>
+              <div class="columns is-multiline">
+                <div class="column is-3">
+                  <div class="spark-tile">
+                    <ApexChart
+                      id="spark1"
+                      :height="spark1.chart.height"
+                      :type="spark1.chart.type"
+                      :series="spark1.series"
+                      :options="spark1"
+                    />
+                  </div>
+                </div>
+                <div class="column is-3">
+                  <div class="spark-tile">
+                    <ApexChart
+                      id="spark2"
+                      :height="spark2.chart.height"
+                      :type="spark2.chart.type"
+                      :series="spark2.series"
+                      :options="spark2"
+                    />
+                  </div>
+                </div>
+                <div class="column is-3">
+                  <div class="spark-tile">
+                    <ApexChart
+                      id="spark3"
+                      :height="spark3.chart.height"
+                      :type="spark3.chart.type"
+                      :series="spark3.series"
+                      :options="spark3"
+                    />
+                  </div>
+                </div>
+                <div class="column is-3">
+                  <div class="spark-tile">
+                    <ApexChart
+                      id="spark4"
+                      :height="spark4.chart.height"
+                      :type="spark4.chart.type"
+                      :series="spark4.series"
+                      :options="spark4"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-
-        <!--Card-->
-        <div class="column is-4">
-
-        </div>
-
         <!--Card-->
         <div class="column is-4">
           <VCalendar
             expanded
             :attributes="calendarAttributes"
           />
+        </div>
+        <!--Card-->
+        <div class="column is-4">
         </div>
       </div>
     </div>

@@ -10,14 +10,9 @@ const router = useRouter()
 const modalDeleted = ref(false)
 const updateTableEvent = ref(false)
 const columns = [
-  { data: 'id', title: 'ID', visible: false },
-  { data: 'ruc', title: 'RUC', typeSearch: 'input' },
-  { data: 'name', title: 'Organización', typeSearch: 'input' },
-  { data: 'district.department.name', title: 'Departamento', typeSearch: 'input' },
-  { data: 'district.name', title: 'Distrito', typeSearch: 'input' },
-  { data: 'address', title: 'Dirección', visible: false, typeSearch: 'input' },
-  { data: 'email', title: 'Correo Electronico', typeSearch: 'input' },
-  { data: 'phone', title: 'Telefono', typeSearch: 'input' },
+  { data: 'id', title: 'ID' },
+  { data: 'name', title: 'Denominación', typeSearch: 'input' },
+  { data: 'abbreviation', title: 'Abreviación', typeSearch: 'input' },
 ]
 const idData = ref(null)
 const emit = defineEmits(['updateTable'])
@@ -78,7 +73,6 @@ async function DeletedItem() {
         to="/tool/externalEntity/create"
         color="primary"
         icon="fas fa-plus"
-        elevated
       >
         Nuevo Entidad
       </VButton>
@@ -89,8 +83,6 @@ async function DeletedItem() {
     server-side-url="external-entities"
     :update-table-event="updateTableEvent"
     :button-table="buttonTable"
-    :search-columns="true"
-    :move-column="true"
     @edit="handleEdit"
     @delete="handleDelete"
   />

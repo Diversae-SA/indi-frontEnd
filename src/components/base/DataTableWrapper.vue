@@ -171,7 +171,8 @@ const options = ref({
   processing: true,
   serverSide: true,
   language: {
-    url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json',
+    // url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json',
+    url: '/api/plug-ins/1.13.7/i18n/es-ES.json',
     lengthMenu: '_MENU_',
     search: ' ',
     searchPlaceholder: 'Buscar...',
@@ -975,7 +976,6 @@ watchEffect(() => {
           rounded
           @click="updateTable()"
         >
-          Actualizar
         </VButton>
         <VIconButton
           color="primary"
@@ -1023,7 +1023,7 @@ watchEffect(() => {
     <DataTable
       ref="table"
       :options="options"
-      class="is-striped is-hoverable is-fullwidth hover nowrap"
+      class="striped is-hoverable is-fullwidth hover"
     />
   </div>
   <VModal
