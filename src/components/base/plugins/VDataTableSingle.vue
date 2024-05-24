@@ -141,6 +141,9 @@ const options = ref({
     },
   ],
   search: true,
+  searching: false, // Ocultar la opción de búsqueda
+  paging: false, // Ocultar la paginación
+  info: false, // Ocultar el listado de resultados
   // data: props.modelValue,
 }) as Config
 

@@ -86,6 +86,7 @@ declare module 'vue' {
     VControl: typeof import('./../src/components/base/VControl.vue')['default']
     VCreditCard: typeof import('./../src/components/base/VCreditCard.vue')['default']
     VDataTable: typeof import('./../src/components/base/VDataTable.vue')['default']
+    VDataTableSingle: typeof import('./../src/components/base/plugins/VDataTableSingle.vue')['default']
     VDate: typeof import('./../src/components/base/VDate.vue')['default']
     VDropdown: typeof import('./../src/components/base/VDropdown.vue')['default']
     VField: typeof import('./../src/components/base/VField.vue')['default']

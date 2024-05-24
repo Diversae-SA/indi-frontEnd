@@ -3,11 +3,29 @@ import { useI18n } from 'vue-i18n'
 import { useUserSession } from '/@src/stores/userSession'
 import ApexChart from 'vue3-apexcharts'
 import { useSalesSparksCharts } from '/@src/data/widgets/charts/salesSparksChart'
+import VDataTableSingle from '/@src/components/base/plugins/VDataTableSingle.vue'
 
 const userSession = useUserSession()
 const { t } = useI18n()
 const router = useRouter()
 const { spark1, spark2, spark3, spark4 } = useSalesSparksCharts()
+const columns = [
+  { data: 'id', title: 'ID' },
+  { data: 'nro_exp', title: 'Nro Exp', typeSearch: 'input' },
+  { data: 'date', title: 'Fecha', typeSearch: 'input' },
+  { data: 'date', title: 'Dependencia Origen.', typeSearch: 'input' },
+  { data: 'date', title: 'Titulo/Asunto', typeSearch: 'input' },
+  { data: 'date', title: 'Recurrente', typeSearch: 'input' },
+  { data: 'date', title: 'Tipo Movimiento', typeSearch: 'input' },
+  { data: 'date', title: 'Fecha Movimiento', typeSearch: 'input' },
+  { data: 'date', title: 'Dependencia Destino', typeSearch: 'input' },
+  { data: 'date', title: 'Archivo Adjunto', typeSearch: 'input' },
+]
+const buttonTable = [
+  { button: 'view', permission: 'full' },
+]
+const openSearchIn = ref(false)
+const openSearchOut = ref(false)
 
 const name = userSession.user!.name
 const profile = import.meta.env.VITE_API_BASE_URL + '/storage/' + userSession.user!.profile_path
@@ -17,7 +35,7 @@ const handleKeydown = (event: KeyboardEvent) => {
     handleNew()
   }
   if (event.altKey && event.key === 'g') {
-    alert('documento Entrante')
+    openSearchIn.value = true
   }
   if (event.altKey && event.key === 'l') {
     alert('documento Saliente')
@@ -92,6 +110,7 @@ onUnmounted(() => {
                     center
                     m-responsive
                     t-responsive
+                    @click="openSearchIn = true"
                   >
                     <template #icon>
                       <i class="lnir lnir-down-arrow-box" aria-hidden="true"></i>
@@ -107,6 +126,7 @@ onUnmounted(() => {
                     center
                     m-responsive
                     t-responsive
+                    @click="openSearchOut = true"
                   >
                     <template #icon>
                       <i class="lnir lnir-top-arrow-box" aria-hidden="true"></i>
@@ -178,6 +198,37 @@ onUnmounted(() => {
             </div>
           </div>
         </div>
+
+        <div class="column is-12">
+          <div class="dashboard-card">
+            <div class="cta-content">
+              <div class="columns is-multiline">
+                <div class="column is-6">
+                  <VField addons label="Busqueda General de Expedientes">
+                    <VControl expanded>
+                      <VInput
+                        type="text"
+                        class="input"
+                      />
+                    </VControl>
+                    <VControl>
+                      <VButton color="primary">
+                        Buscar
+                      </VButton>
+                    </VControl>
+                  </VField>
+                </div>
+                <div class="column is-12">
+                  <VDataTableSingle
+                    :columns="columns"
+                    server-side-url="expedientes"
+                    :button-table="buttonTable"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
         <!--Card-->
         <div class="column is-4">
           <VCalendar
@@ -191,6 +242,74 @@ onUnmounted(() => {
       </div>
     </div>
   </div>
+  <VModal
+    :open="openSearchIn"
+    size="big"
+    actions="center"
+    @close="openSearchIn = false"
+  >
+    <template #content>
+      <div class="columns is-multiline">
+        <div class="column is-6">
+          <VField addons label="Busqueda de Expedientes Entrantes">
+            <VControl expanded>
+              <VInput
+                type="text"
+                class="input"
+              />
+            </VControl>
+            <VControl>
+              <VButton color="primary">
+                Buscar
+              </VButton>
+            </VControl>
+          </VField>
+        </div>
+        <div class="column is-12">
+          <VDataTableSingle
+            :columns="columns"
+            server-side-url="expedientes"
+            :button-table="buttonTable"
+          />
+        </div>
+      </div>
+    </template>
+    <template #action/>
+  </VModal>
+  <VModal
+    :open="openSearchOut"
+    size="big"
+    actions="center"
+    @close="openSearchOut = false"
+  >
+    <template #content>
+      <div class="columns is-multiline">
+        <div class="column is-6">
+          <VField addons label="Busqueda de Expedientes">
+            <VControl expanded>
+              <VInput
+                type="text"
+                class="input"
+              />
+            </VControl>
+            <VControl>
+              <VButton color="primary">
+                Buscar
+              </VButton>
+            </VControl>
+          </VField>
+        </div>
+        <div class="column is-12">
+          <VDataTableSingle
+            :columns="columns"
+            server-side-url="expedientes"
+            :button-table="buttonTable"
+          />
+        </div>
+      </div>
+    </template>
+    <template #action/>
+  </VModal>
 </template>
 
 <style lang="scss">
