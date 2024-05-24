@@ -18,6 +18,8 @@ declare module 'vue' {
     DepartmentList: typeof import('./../src/components/pages/tool/departments/DepartmentList.vue')['default']
     DependencyCreateUpdate: typeof import('./../src/components/pages/tool/dependencies/DependencyCreateUpdate.vue')['default']
     DependencyList: typeof import('./../src/components/pages/tool/dependencies/DependencyList.vue')['default']
+    EntityCreateUpdate: typeof import('./../src/components/pages/tool/externalEntity/EntityCreateUpdate.vue')['default']
+    EntityList: typeof import('./../src/components/pages/tool/externalEntity/EntityList.vue')['default']
     FunctionaryCreateUpdate: typeof import('./../src/components/pages/tool/functioraries/FunctionaryCreateUpdate.vue')['default']
     FunctionaryList: typeof import('./../src/components/pages/tool/functioraries/FunctionaryList.vue')['default']
     IcoLogo: typeof import('./../src/components/svg/IcoLogo.vue')['default']

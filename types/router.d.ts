@@ -54,6 +54,8 @@ declare module 'vue-router/auto/routes' {
     '/setting/user/user-create': RouteRecordInfo<'/setting/user/user-create', '/setting/user/user-create', Record<never, never>, Record<never, never>>,
     '/setting/user/user-update': RouteRecordInfo<'/setting/user/user-update', '/setting/user/user-update', Record<never, never>, Record<never, never>>,
     '/tool/departments': RouteRecordInfo<'/tool/departments', '/tool/departments', Record<never, never>, Record<never, never>>,
+    '/tool/externalEntity/entity': RouteRecordInfo<'/tool/externalEntity/entity', '/tool/externalEntity/entity', Record<never, never>, Record<never, never>>,
+    '/tool/externalEntity/entity-cu': RouteRecordInfo<'/tool/externalEntity/entity-cu', '/tool/externalEntity/entity-cu', Record<never, never>, Record<never, never>>,
     '/tool/functionaries/functionary': RouteRecordInfo<'/tool/functionaries/functionary', '/tool/functionaries/functionary', Record<never, never>, Record<never, never>>,
     '/tool/functionaries/functionary-create': RouteRecordInfo<'/tool/functionaries/functionary-create', '/tool/functionaries/functionary-create', Record<never, never>, Record<never, never>>,
     '/tool/functionaries/functionary-update': RouteRecordInfo<'/tool/functionaries/functionary-update', '/tool/functionaries/functionary-update', Record<never, never>, Record<never, never>>,

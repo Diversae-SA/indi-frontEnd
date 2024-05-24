@@ -90,6 +90,29 @@ const routes = [
         meta: { permission: 'dependencies edit' },
       },
 
+      // ---------------------------- Entidades Externos -----------------
+      {
+        component: () => import('/@src/pages/tool/externalEntity/entity.vue'),
+        path: '/tool/externalEntity',
+        name: 'tool/externalEntity',
+        props: true,
+        meta: { permission: 'program externalEntities' },
+      },
+      {
+        component: () => import('/src/pages/tool/externalEntity/entity-cu.vue'),
+        path: '/tool/externalEntity/create',
+        name: 'tool/externalEntity/create',
+        props: true,
+        meta: { permission: 'externalEntities create' },
+      },
+      {
+        component: () => import('/src/pages/tool/externalEntity/entity-cu.vue'),
+        path: '/tool/externalEntity/update/:id',
+        name: 'tool/externalEntity/update',
+        props: true,
+        meta: { permission: 'externalEntities edit' },
+      },
+
       // ----- SETTINGS --------------------------------------------------
 
       // ---------------------------- Organization Chart -----------------

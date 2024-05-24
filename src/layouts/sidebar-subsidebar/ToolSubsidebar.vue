@@ -56,6 +56,15 @@ const emit = defineEmits(['close'])
             Funcionario/Dependencia
           </RouterLink>
         </li>
+        <li v-if="hasPermission('program externalEntities')">
+          <RouterLink to="/tool/externalEntity">
+            <i
+              aria-hidden="true"
+              class="lnil lnil-apartment-alt pr-2"
+            />
+            Entidades Externas
+          </RouterLink>
+        </li>
       </ul>
     </div>
   </div>
