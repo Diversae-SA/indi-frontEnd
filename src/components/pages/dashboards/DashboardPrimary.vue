@@ -38,7 +38,7 @@ const handleKeydown = (event: KeyboardEvent) => {
     openSearchIn.value = true
   }
   if (event.altKey && event.key === 'l') {
-    alert('documento Saliente')
+    openSearchOut.value = true
   }
 }
 
@@ -58,11 +58,11 @@ const calendarAttributes = ref([
 ])
 
 onMounted(() => {
-  window.addEventListener('keydown', handleKeydown);
+  window.addEventListener('keydown', handleKeydown)
 })
 
 onUnmounted(() => {
-  window.removeEventListener('keydown', handleKeydown);
+  window.removeEventListener('keydown', handleKeydown)
 })
 </script>
 
@@ -87,49 +87,49 @@ onUnmounted(() => {
             <div class="quick-stats">
               <div class="quick-stats-inner">
                 <!--Stat-->
-                <div class="quick-stat new-document">
+                <div
+                  class="quick-stat new-document"
+                  @click="handleNew"
+                >
                   <VBlock
                     title="NUEVO"
                     subtitle="Atajos - Alt+N"
                     center
                     m-responsive
                     t-responsive
-                    @click="handleNew"
                   >
                     <template #icon>
-                      <i class="lnir lnir-write" aria-hidden="true"></i>
+                      <i class="lnir lnir-write" aria-hidden="true" />
                     </template>
                   </VBlock>
                 </div>
 
                 <!--Stat-->
-                <div class="quick-stat in-document">
+                <div class="quick-stat in-document" @click="openSearchIn = true">
                   <VBlock
                     title="ENTRADA"
                     subtitle="Atajos - Alt+G"
                     center
                     m-responsive
                     t-responsive
-                    @click="openSearchIn = true"
                   >
                     <template #icon>
-                      <i class="lnir lnir-down-arrow-box" aria-hidden="true"></i>
+                      <i class="lnir lnir-down-arrow-box" aria-hidden="true" />
                     </template>
                   </VBlock>
                 </div>
 
                 <!--Stat-->
-                <div class="quick-stat out-document">
+                <div class="quick-stat out-document" @click="openSearchOut = true">
                   <VBlock
                     title="SALIDA"
                     subtitle="Atajos - Alt+L"
                     center
                     m-responsive
                     t-responsive
-                    @click="openSearchOut = true"
                   >
                     <template #icon>
-                      <i class="lnir lnir-top-arrow-box" aria-hidden="true"></i>
+                      <i class="lnir lnir-top-arrow-box" aria-hidden="true" />
                     </template>
                   </VBlock>
                 </div>
@@ -139,11 +139,11 @@ onUnmounted(() => {
         </div>
 
         <!--Card-->
-<!--        <div class="column is-4">-->
-<!--          <div class="dashboard-card">-->
+        <!--        <div class="column is-4">-->
+        <!--          <div class="dashboard-card">-->
 
-<!--          </div>-->
-<!--        </div>-->
+        <!--          </div>-->
+        <!--        </div>-->
 
         <!--Card-->
         <div class="column is-12">
@@ -237,8 +237,7 @@ onUnmounted(() => {
           />
         </div>
         <!--Card-->
-        <div class="column is-4">
-        </div>
+        <div class="column is-4" />
       </div>
     </div>
   </div>
@@ -274,7 +273,7 @@ onUnmounted(() => {
         </div>
       </div>
     </template>
-    <template #action/>
+    <template #action />
   </VModal>
   <VModal
     :open="openSearchOut"
@@ -308,7 +307,7 @@ onUnmounted(() => {
         </div>
       </div>
     </template>
-    <template #action/>
+    <template #action />
   </VModal>
 </template>
 
