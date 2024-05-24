@@ -46,13 +46,13 @@ export default defineConfig({
   server: {
     // Vite 4 defaults to 5173, but you can override it with the port option.
     port: 3000,
-    proxy: {
+    /* proxy: {
       '/api': {
         target: 'https://cdn.datatables.net',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
-    },
+    }, */
   },
   /**
    * By default, Vite will crawl your index.html to detect dependencies that
