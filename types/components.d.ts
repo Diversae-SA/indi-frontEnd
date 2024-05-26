@@ -7,10 +7,13 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    ActivityPanel: typeof import('./../src/components/partials/panels/ActivityPanel.vue')['default']
+    AdditionalDataList: typeof import('./../src/components/pages/communities/additionalData/AdditionalDataList.vue')['default']
     AnimatedLogo: typeof import('./../src/components/svg/AnimatedLogo.vue')['default']
     AppLayout: typeof import('./../src/layouts/AppLayout.vue')['default']
     AuthLayout: typeof import('./../src/layouts/AuthLayout.vue')['default']
     ClientOnly: typeof import('./../src/components/ClientOnly.vue')['default']
+    CommunitySubsidebar: typeof import('./../src/layouts/sidebar-subsidebar/CommunitySubsidebar.vue')['default']
     DashboardPrimary: typeof import('./../src/components/pages/dashboards/DashboardPrimary.vue')['default']
     DashboardsMobileSubsidebar: typeof import('./../src/layouts/mobile-subsidebars/DashboardsMobileSubsidebar.vue')['default']
     DashboardsSubsidebar: typeof import('./../src/layouts/sidebar-subsidebar/DashboardsSubsidebar.vue')['default']

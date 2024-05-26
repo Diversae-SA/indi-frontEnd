@@ -539,6 +539,9 @@ const themeClasses = computed(() => {
     .bottom-menu {
       li {
         a {
+          p{
+            color: var(--dark-text) !important;
+          }
           &.is-selected,
           &.router-link-active {
             svg {

@@ -29,6 +29,7 @@ const emit = defineEmits(['close'])
       data-simplebar
     >
       <ul>
+        <li class="divider" />
         <li v-if="hasPermission('program expedientes')">
           <RouterLink to="/expediente/expediente_list">
             <i

@@ -7,6 +7,8 @@ export type UserData = Record<string, any> | null
 export const useUserSession = defineStore('userSession', () => {
 
   const token = useStorage('token', '')
+  const entity = useStorage('entity', '')
+  const period = useStorage('period', '')
 
   const user = ref<Partial<UserData>>()
   const loading = ref(true)
@@ -21,6 +23,14 @@ export const useUserSession = defineStore('userSession', () => {
     token.value = newToken
   }
 
+  function setEntity(newEntity: string) {
+    entity.value = newEntity
+  }
+
+  function setPeriod(newPeriod: string) {
+    period.value = newPeriod
+  }
+
   function setLoading(newLoading: boolean) {
     loading.value = newLoading
   }
@@ -33,11 +43,15 @@ export const useUserSession = defineStore('userSession', () => {
   return {
     user,
     token,
+    entity,
+    period,
     isLoggedIn,
     loading,
     logoutUser,
     setUser,
     setToken,
+    setEntity,
+    setPeriod,
     setLoading,
   } as const
 })

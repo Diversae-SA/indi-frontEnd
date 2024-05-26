@@ -462,6 +462,9 @@
             }
           }
         }
+        h3 {
+          color: var(--dark-dark-text-light-14);
+        }
       }
 
       .inner {
@@ -492,8 +495,9 @@
             }
 
             a {
+              color: var(--dark-dark-text);
               &:hover {
-                color: var(--dark-dark-text);
+                color: var(--dark-dark-text-1);
               }
             }
 

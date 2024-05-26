@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { hasPermission } from '/@src/utils/permissions'
+
 const emit = defineEmits(['close'])
 </script>
 
@@ -6,7 +8,7 @@ const emit = defineEmits(['close'])
   <div class="sidebar-panel is-generic">
     <div class="subpanel-header">
       <h3 class="no-mb">
-        Panel Principal
+        Comunidades Indígenas
       </h3>
       <div
         class="panel-close"
@@ -28,13 +30,13 @@ const emit = defineEmits(['close'])
     >
       <ul>
         <li class="divider" />
-        <li>
-          <RouterLink to="/app">
+        <li v-if="hasPermission('program type_data')">
+          <RouterLink to="/communities/additional_data">
             <i
               aria-hidden="true"
-              class="lnil lnil-home pr-2"
+              class="lnil lnil-cubes pr-2"
             />
-            Inicio
+            Datos Adicionales
           </RouterLink>
         </li>
       </ul>
@@ -43,5 +45,5 @@ const emit = defineEmits(['close'])
 </template>
 
 <style lang="scss">
-@import '/@src/scss/layout/sidebar-panel';
+@import '/src/scss/layout/sidebar-panel';
 </style>

@@ -218,6 +218,9 @@ const props = withDefaults(defineProps<VBreadcrumbsProps>(), {
   .breadcrumb {
     ul {
       li {
+        .breadcrumb-item {
+          color: var(--dark-dark-text);
+        }
         a {
           &.breadcrumb-item {
             &:hover {

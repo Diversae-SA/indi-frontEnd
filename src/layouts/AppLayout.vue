@@ -2,6 +2,8 @@
 import type { SidebarTheme } from '/@src/components/navigation/desktop/Sidebar.vue'
 import { useViewWrapper } from '/@src/stores/viewWrapper'
 import ExpedienteSubsidebar from '/@src/layouts/sidebar-subsidebar/ExpedienteSubsidebar.vue'
+import { usePanels } from '/@src/stores/panels'
+import CommunitySubsidebar from '/@src/layouts/sidebar-subsidebar/CommunitySubsidebar.vue'
 // import { hasPermission } from '/@src/utils/permissions'
 
 const props = withDefaults(
@@ -20,6 +22,7 @@ const props = withDefaults(
 
 const viewWrapper = useViewWrapper()
 const route = useRoute()
+const panels = usePanels()
 const isMobileSidebarOpen = ref(false)
 const isDesktopSidebarOpen = ref(props.openOnMounted)
 const activeMobileSubsidebar = ref(props.defaultSidebar)
@@ -136,24 +139,10 @@ watch(
               class="iconify sidebar-svg"
               data-icon="feather:home"
             />
+            <p>PANEL</p>
           </a>
         </li>
-        <li>
-          <a
-            :class="[activeMobileSubsidebar === 'tool' && 'is-active']"
-            data-content="Ajustes"
-            tabindex="0"
-            role="button"
-            @keydown.space.prevent="switchSidebar('tool')"
-            @click="switchSidebar('tool')"
-          >
-            <i
-              aria-hidden="true"
-              class="iconify sidebar-svg"
-              data-icon="feather:tool"
-            />
-          </a>
-        </li>
+        <!-- Expedientes -->
         <li>
           <a
             :class="[activeMobileSubsidebar === 'expediente' && 'is-active']"
@@ -168,6 +157,43 @@ watch(
               class="iconify sidebar-svg"
               data-icon="feather:trello"
             />
+            <p>EXPEDIENTES</p>
+          </a>
+        </li>
+        <!-- REGISTRO DE COMUNIDADES INDÍGENAS -->
+        <li>
+          <a
+            :class="[activeMobileSubsidebar === 'community' && 'is-active']"
+            data-content="Comunidades Indigenas"
+            tabindex="0"
+            role="button"
+            @keydown.space.prevent="switchSidebar('community')"
+            @click="switchSidebar('community')"
+          >
+            <i
+              aria-hidden="true"
+              class="iconify sidebar-svg"
+              data-icon="feather:users"
+            />
+            <p>COMUNIDADES INDÍGENAS</p>
+          </a>
+        </li>
+        <!-- Datos Generales -->
+        <li>
+          <a
+            :class="[activeMobileSubsidebar === 'tool' && 'is-active']"
+            data-content="Ajustes"
+            tabindex="0"
+            role="button"
+            @keydown.space.prevent="switchSidebar('tool')"
+            @click="switchSidebar('tool')"
+          >
+            <i
+              aria-hidden="true"
+              class="iconify sidebar-svg"
+              data-icon="feather:tool"
+            />
+            <p>AJUSTES</p>
           </a>
         </li>
       </template>
@@ -212,12 +238,18 @@ watch(
       />
     </Transition>
     <Transition name="slide-x">
+      <CommunitySubsidebar
+        v-if="isDesktopSidebarOpen && activeMobileSubsidebar === 'community'"
+        @close="isDesktopSidebarOpen = false"
+      />
+    </Transition>
+    <Transition name="slide-x">
       <SettingSubsidebar
         v-if="isDesktopSidebarOpen && activeMobileSubsidebar === 'setting'"
         @close="isDesktopSidebarOpen = false"
       />
     </Transition>
-
+    <ActivityPanel />
     <VViewWrapper>
       <VPageContentWrapper>
         <template v-if="props.nowrap">
@@ -265,7 +297,23 @@ watch(
               </h1>
             </div>
 
-            <Toolbar class="desktop-toolbar" />
+            <Toolbar class="desktop-toolbar">
+              <!--<ToolbarNotification />-->
+              <a
+                class="toolbar-link right-panel-trigger"
+                aria-label="View activity panel"
+                tabindex="0"
+                role="button"
+                @keydown.space.prevent="panels.setActive('activity')"
+                @click="panels.setActive('activity')"
+              >
+                <i
+                  aria-hidden="true"
+                  class="iconify"
+                  data-icon="feather:grid"
+                />
+              </a>
+            </Toolbar>
           </div>
 
           <slot />
@@ -277,5 +325,16 @@ watch(
 <style lang="scss">
 .main-sidebar {
   background-color: var(--placeholder-light-10);
+}
+
+.main-sidebar .sidebar-inner .icon-menu li a {
+  position: absolute;
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--light-text);
+  text-transform: uppercase;
+  text-align: center;
+  width: 80px;
+  transition: opacity 0.3s;
 }
 </style>

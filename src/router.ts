@@ -208,6 +208,16 @@ const routes = [
         meta: { permission: 'expedientes create' },
       },
 
+      // ----- COMUNIDADES ---------------------------------------------------------------
+      // ---------------------------- Datos Adicionales ----------------------------------
+      {
+        component: () => import('/@src/pages/communities/additional_data/additional.vue'),
+        path: '/communities/additional_data',
+        name: 'communities/additional_data',
+        props: true,
+        meta: { permission: 'program additional_data' },
+      },
+
       // ----- SETTINGS --------------------------------------------------
 
       // ---------------------------- Organization Chart -----------------

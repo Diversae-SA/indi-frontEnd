@@ -429,7 +429,7 @@ select {
   > label {
     font-family: var(--font);
     font-size: 0.9rem;
-    color: var(--light-text) !important;
+    color: var(--light-text);
     font-weight: 400;
   }
 }
@@ -721,6 +721,10 @@ select {
         background-color: var(--dark-sidebar-light-2);
         border-color: var(--dark-sidebar-light-4);
       }
+    }
+
+    > label {
+      color: var(--dark-dark-text) !important;
     }
   }
 
