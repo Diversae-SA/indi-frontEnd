@@ -30,13 +30,22 @@ const emit = defineEmits(['close'])
     >
       <ul>
         <li class="divider" />
-        <li v-if="hasPermission('program type_data')">
+        <li v-if="hasPermission('program additional_data')">
           <RouterLink to="/communities/additional_data">
             <i
               aria-hidden="true"
               class="lnil lnil-cubes pr-2"
             />
             Datos Adicionales
+          </RouterLink>
+        </li>
+        <li v-if="hasPermission('program type_benefits')">
+          <RouterLink to="/communities/type_benefits">
+            <i
+              aria-hidden="true"
+              class="lnil lnil-letterblocks pr-2"
+            />
+            Tipos de Beneficios
           </RouterLink>
         </li>
       </ul>

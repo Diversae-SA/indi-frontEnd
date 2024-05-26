@@ -217,6 +217,14 @@ const routes = [
         props: true,
         meta: { permission: 'program additional_data' },
       },
+      // ---------------------------- Tipo de Beneficios ---------------------------------
+      {
+        component: () => import('/@src/pages/communities/type_benefits/benefits.vue'),
+        path: '/communities/type_benefits',
+        name: 'communities/type_benefits',
+        props: true,
+        meta: { permission: 'program type_benefits' },
+      },
 
       // ----- SETTINGS --------------------------------------------------
 

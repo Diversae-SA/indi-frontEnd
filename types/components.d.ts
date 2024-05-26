@@ -59,6 +59,7 @@ declare module 'vue' {
     SVGErrorPlaceholder: typeof import('./../src/components/svg/SVGErrorPlaceholder.vue')['default']
     Toolbar: typeof import('./../src/components/partials/toolbars/Toolbar.vue')['default']
     ToolSubsidebar: typeof import('./../src/layouts/sidebar-subsidebar/ToolSubsidebar.vue')['default']
+    TypeBenefitList: typeof import('./../src/components/pages/communities/typeBenfits/TypeBenefitList.vue')['default']
     TypeDataList: typeof import('./../src/components/pages/tool/typeData/TypeDataList.vue')['default']
     TypeFileCreateUpdate: typeof import('./../src/components/pages/tool/typeFiles/TypeFileCreateUpdate.vue')['default']
     TypeFileList: typeof import('./../src/components/pages/tool/typeFiles/TypeFileList.vue')['default']
