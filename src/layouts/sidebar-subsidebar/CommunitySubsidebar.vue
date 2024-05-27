@@ -30,6 +30,25 @@ const emit = defineEmits(['close'])
     >
       <ul>
         <li class="divider" />
+        <li v-if="hasPermission('program organizations')">
+          <RouterLink to="/communities/organizations">
+            <i
+              aria-hidden="true"
+              class="lnil lnil-apartment-alt pr-2"
+            />
+            Organizaciones
+          </RouterLink>
+        </li>
+        <li v-if="hasPermission('program community_members')">
+          <RouterLink to="/communities/community_members">
+            <i
+              aria-hidden="true"
+              class="lnil lnil-user-alt-2 pr-2"
+            />
+            Personas/Miembros
+          </RouterLink>
+        </li>
+        <li class="divider" />
         <li v-if="hasPermission('program additional_data')">
           <RouterLink to="/communities/additional_data">
             <i

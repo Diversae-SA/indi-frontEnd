@@ -1,11 +1,8 @@
 <script setup lang="ts">
 import type { SidebarTheme } from '/@src/components/navigation/desktop/Sidebar.vue'
 import { useViewWrapper } from '/@src/stores/viewWrapper'
-import ExpedienteSubsidebar from '/@src/layouts/sidebar-subsidebar/ExpedienteSubsidebar.vue'
 import { usePanels } from '/@src/stores/panels'
-import CommunitySubsidebar from '/@src/layouts/sidebar-subsidebar/CommunitySubsidebar.vue'
 // import { hasPermission } from '/@src/utils/permissions'
-
 const props = withDefaults(
   defineProps<{
     theme?: SidebarTheme
@@ -22,14 +19,19 @@ const props = withDefaults(
 
 const viewWrapper = useViewWrapper()
 const route = useRoute()
+const nameSubside = route.path
+const firstSegment = nameSubside.split('/')[1]
+console.log(firstSegment)
 const panels = usePanels()
 const isMobileSidebarOpen = ref(false)
-const isDesktopSidebarOpen = ref(props.openOnMounted)
-const activeMobileSubsidebar = ref(props.defaultSidebar)
+const isDesktopSidebarOpen = ref(true) // props.openOnMounted
+const activeMobileSubsidebar = ref(firstSegment) // props.defaultSidebar
+switchSidebar(firstSegment)
 
 function switchSidebar(id: string) {
   if (id === activeMobileSubsidebar.value) {
-    isDesktopSidebarOpen.value = !isDesktopSidebarOpen.value
+    // isDesktopSidebarOpen.value = !isDesktopSidebarOpen.value
+    activeMobileSubsidebar.value = id
   }
   else {
     isDesktopSidebarOpen.value = true
@@ -46,8 +48,10 @@ watchPostEffect(() => {
 watch(
   () => route.fullPath,
   () => {
+    const nameSubside = route.path
+    const firstSegment = nameSubside.split('/')[1]
     isMobileSidebarOpen.value = false
-
+    switchSidebar(firstSegment)
     if (props.closeOnChange && isDesktopSidebarOpen.value) {
       isDesktopSidebarOpen.value = false
     }
@@ -115,7 +119,7 @@ watch(
     <!-- Mobile subsidebar links -->
     <Transition name="slide-x">
       <DashboardsMobileSubsidebar
-        v-if="isMobileSidebarOpen && activeMobileSubsidebar === 'dashboard'"
+        v-if="isMobileSidebarOpen && activeMobileSubsidebar === 'app'"
       />
     </Transition>
 
@@ -127,12 +131,12 @@ watch(
         <!-- Dashboards -->
         <li>
           <a
-            :class="[activeMobileSubsidebar === 'dashboard' && 'is-active']"
+            :class="[activeMobileSubsidebar === 'app' && 'is-active']"
             data-content="Dashboards"
             tabindex="0"
             role="button"
-            @keydown.space.prevent="switchSidebar('dashboard')"
-            @click="switchSidebar('dashboard')"
+            @keydown.space.prevent="switchSidebar('app')"
+            @click="switchSidebar('app')"
           >
             <i
               aria-hidden="true"
@@ -163,12 +167,12 @@ watch(
         <!-- REGISTRO DE COMUNIDADES INDÍGENAS -->
         <li>
           <a
-            :class="[activeMobileSubsidebar === 'community' && 'is-active']"
+            :class="[activeMobileSubsidebar === 'communities' && 'is-active']"
             data-content="Comunidades Indigenas"
             tabindex="0"
             role="button"
-            @keydown.space.prevent="switchSidebar('community')"
-            @click="switchSidebar('community')"
+            @keydown.space.prevent="switchSidebar('communities')"
+            @click="switchSidebar('communities')"
           >
             <i
               aria-hidden="true"
@@ -221,7 +225,7 @@ watch(
 
     <Transition name="slide-x">
       <DashboardsSubsidebar
-        v-if="isDesktopSidebarOpen && activeMobileSubsidebar === 'dashboard'"
+        v-if="isDesktopSidebarOpen && activeMobileSubsidebar === 'app'"
         @close="isDesktopSidebarOpen = false"
       />
     </Transition>
@@ -239,7 +243,7 @@ watch(
     </Transition>
     <Transition name="slide-x">
       <CommunitySubsidebar
-        v-if="isDesktopSidebarOpen && activeMobileSubsidebar === 'community'"
+        v-if="isDesktopSidebarOpen && activeMobileSubsidebar === 'communities'"
         @close="isDesktopSidebarOpen = false"
       />
     </Transition>

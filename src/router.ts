@@ -208,7 +208,8 @@ const routes = [
         meta: { permission: 'expedientes create' },
       },
 
-      // ----- COMUNIDADES ---------------------------------------------------------------
+      // --******************************** COMUNIDADES **********************************
+
       // ---------------------------- Datos Adicionales ----------------------------------
       {
         component: () => import('/@src/pages/communities/additional_data/additional.vue'),
@@ -225,8 +226,53 @@ const routes = [
         props: true,
         meta: { permission: 'program type_benefits' },
       },
+      // ---------------------------- Miembros de la Comunidad ---------------------------
+      {
+        component: () => import('/@src/pages/communities/members/community_members.vue'),
+        path: '/communities/community_members',
+        name: 'communities/community_members',
+        props: true,
+        meta: { permission: 'program community_members' },
+      },
+      {
+        component: () => import('/@src/pages/communities/members/community-members-cu.vue'),
+        path: '/communities/community_members/create',
+        name: 'communities/community_members/create',
+        props: true,
+        meta: { permission: 'community_members create' },
+      },
+      {
+        component: () => import('/@src/pages/communities/members/community-members-cu.vue'),
+        path: '/communities/community_members/update/:id',
+        name: 'communities/community_members/update',
+        props: true,
+        meta: { permission: 'community_members edit' },
+      },
 
-      // ----- SETTINGS --------------------------------------------------
+      // ---------------------------- Organizacion ---------------------------
+      {
+        component: () => import('/@src/pages/communities/organizations/organizations.vue'),
+        path: '/communities/organizations',
+        name: 'communities/organizations',
+        props: true,
+        meta: { permission: 'program organizations' },
+      },
+      {
+        component: () => import('/@src/pages/communities/organizations/organizations-cu.vue'),
+        path: '/communities/organizations/create',
+        name: 'communities/organizations/create',
+        props: true,
+        meta: { permission: 'organizations create' },
+      },
+      {
+        component: () => import('/@src/pages/communities/organizations/organizations-cu.vue'),
+        path: '/communities/organizations/update/:id',
+        name: 'communities/organizations/update',
+        props: true,
+        meta: { permission: 'organizations edit' },
+      },
+
+      // *********************************** SETTINGS ************************************
 
       // ---------------------------- Organization Chart -----------------
       {
