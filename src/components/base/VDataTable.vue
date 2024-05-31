@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import 'https://code.jquery.com/jquery-3.7.1.min.js'
 import DataTable from 'datatables.net-vue3'
 import DataTablesCore, { type Config } from 'datatables.net'
 
@@ -38,31 +39,25 @@ const augmentedColumns = [
     defaultContent: '<i class="fa fa-pen"/>',
     data: props.columnId,
     render: function (data: any) {
-      let buttons = `<div class="action-button">`
-      props.buttonTable.forEach((button: any) => {
-        if (button.button == 'view' && hasPermission(button.permission)) {
-          buttons
-            = buttons
-            + `<button data-id="${data}" class="button is-dark-bg-1 is-info is-light" id="view">
-            <i class="iconify" data-icon="feather:eye" aria-hidden="true"></i>
-          </button>`
-        }
-        if (button.button == 'edit' && hasPermission(button.permission)) {
-          buttons
-            = buttons
-            + `<button data-id="${data}" class="button is-dark-bg-1 is-warning is-light" id="edit">
-            <i class="iconify" data-icon="feather:edit" aria-hidden="true"></i>
-          </button>`
-        }
-        if (button.button == 'delete' && hasPermission(button.permission)) {
-          buttons
-            = buttons
-            + `<button data-id="${data}" class="button is-dark-bg-1 is-danger is-light" id="delete">
-                <i class="iconify" data-icon="feather:trash-2" aria-hidden="true"></i>
-             </button>`
-        }
-      })
-      return buttons + `</div>`
+      const buttonTypes = [
+        { type: 'view', icon: 'feather:eye', class: 'is-info' },
+        { type: 'edit', icon: 'feather:edit', class: 'is-warning' },
+        { type: 'delete', icon: 'feather:trash-2', class: 'is-danger' },
+      ]
+      const buttons = buttonTypes
+        .filter((button) => {
+          return props.buttonTable.some(
+            btn => btn.button === button.type && (hasPermission(btn.permission) || btn.permission === 'full'),
+          )
+        })
+        .map((button) => {
+          return `
+        <button data-id="${data}" class="button is-dark-bg-1 ${button.class} is-light" id="${button.type}">
+          <i class="iconify" data-icon="${button.icon}" aria-hidden="true"></i>
+        </button>`
+        })
+        .join('')
+      return `<div class="action-button">${buttons}</div>`;
     },
     exportable: false,
   },
@@ -147,6 +142,24 @@ const options = ref({
 
 onMounted(function () {
   dt = table.value.dt
+  $(document).on('click', '#view', function (event) {
+    event.preventDefault()
+    event.stopPropagation()
+    let id = $(this).data('id')
+    emit('view', id)
+  })
+  $(document).on('click', '#edit', function (event) {
+    event.preventDefault()
+    event.stopPropagation()
+    let id = $(this).data('id')
+    emit('edit', id)
+  })
+  $(document).on('click', '#delete', function (event) {
+    event.preventDefault()
+    event.stopPropagation()
+    let id = $(this).data('id')
+    emit('delete', id)
+  })
 })
 
 const dataTable = ref<Record<string, any>[]>([])
@@ -161,7 +174,7 @@ watch(() => props.modelValue, (newVal) => {
       ref="table"
       :options="options"
       :data="dataTable"
-      class="is-striped is-hoverable is-fullwidth hover nowrap"
+      class="striped is-hoverable is-fullwidth hover nowrap"
     />
   </div>
 </template>

@@ -91,31 +91,25 @@ const augmentedColumns = [
     defaultContent: '<i class="fa fa-pen"/>',
     data: props.columnId,
     render: function (data: any) {
-      let buttons = `<div class="action-button">`
-      props.buttonTable.forEach((button: any) => {
-        if (button.button == 'view' && hasPermission(button.permission)) {
-          buttons
-            = buttons
-            + `<button data-id="${data}" class="button is-dark-bg-1 is-info is-light" id="view">
-            <i class="iconify" data-icon="feather:eye" aria-hidden="true"></i>
-          </button>`
-        }
-        if (button.button == 'edit' && hasPermission(button.permission)) {
-          buttons
-            = buttons
-            + `<button data-id="${data}" class="button is-dark-bg-1 is-warning is-light" id="edit">
-            <i class="iconify" data-icon="feather:edit" aria-hidden="true"></i>
-          </button>`
-        }
-        if (button.button == 'delete' && hasPermission(button.permission)) {
-          buttons
-            = buttons
-            + `<button data-id="${data}" class="button is-dark-bg-1 is-danger is-light" id="delete">
-                <i class="iconify" data-icon="feather:trash-2" aria-hidden="true"></i>
-             </button>`
-        }
-      })
-      return buttons + `</div>`
+      const buttonTypes = [
+        { type: 'view', icon: 'feather:eye', class: 'is-info' },
+        { type: 'edit', icon: 'feather:edit', class: 'is-warning' },
+        { type: 'delete', icon: 'feather:trash-2', class: 'is-danger' },
+      ]
+      const buttons = buttonTypes
+        .filter((button) => {
+          return props.buttonTable.some(
+            btn => btn.button === button.type && (hasPermission(btn.permission) || btn.permission === 'full'),
+          )
+        })
+        .map((button) => {
+          return `
+        <button data-id="${data}" class="button is-dark-bg-1 ${button.class} is-light" id="${button.type}">
+          <i class="iconify" data-icon="${button.icon}" aria-hidden="true"></i>
+        </button>`
+        })
+        .join('')
+      return `<div class="action-button">${buttons}</div>`;
     },
     exportable: false,
   },
@@ -707,6 +701,10 @@ const modelExcel = () => {
   modelExportExcel.value = true
 }
 
+function getNestedValue(obj: any, path: string) {
+  return path.split('.').reduce((acc, part) => acc && acc[part], obj)
+}
+
 const exportToExcel = async () => {
   isLoading.value = true
   let searchParams = dt.ajax.params()
@@ -793,8 +791,8 @@ const exportToExcel = async () => {
       if (exportExcelAddNumber.value) {
         filteredRow = { '#': index + 1 }
       }
-      columnDataNames.forEach((idx: number) => {
-        filteredRow[idx] = row[idx]
+      columnDataNames.forEach((columnName: string) => {
+        filteredRow[columnName] = getNestedValue(row, columnName)
       })
       return filteredRow
     })

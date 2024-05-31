@@ -3,7 +3,7 @@ import { useI18n } from 'vue-i18n'
 import { useUserSession } from '/@src/stores/userSession'
 import ApexChart from 'vue3-apexcharts'
 import { useSalesSparksCharts } from '/@src/data/widgets/charts/salesSparksChart'
-import VDataTableSingle from '/@src/components/base/plugins/VDataTableSingle.vue'
+import VDataTableSingle from '/@src/components/base/VDataTableSingle.vue'
 
 const userSession = useUserSession()
 const { t } = useI18n()

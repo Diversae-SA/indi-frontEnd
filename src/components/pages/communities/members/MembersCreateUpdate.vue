@@ -5,7 +5,7 @@ import { onMounted, ref } from 'vue'
 import type { RouteParamValue } from 'vue-router'
 import { catchFieldError } from '/@src/utils/api/catchFieldError'
 import { toTypedSchema } from '@vee-validate/zod'
-import { string, number, boolean, z as zod } from 'zod'
+import { string, number, boolean, z as zod, date } from 'zod'
 import { useSubmitHandler } from '/@src/composable/useSubmitHandler'
 
 const $fetch = useFetch()
@@ -27,13 +27,13 @@ const optionDepartment = ref<
 >([])
 const optionsDistrict = ref<Array<{ value: number, label: string }>>([])
 const districtEnable = ref<boolean>(true)
-const optionOrganizationChart = ref([])
+const optionCommunities = ref([])
 
-interface Functionary {
+interface DataForm {
   ci: string
   name: string
   last_name: string
-  date_birth: string
+  date_birth: Date
   gender: string
   nationality: string
   address: string | null
@@ -41,27 +41,29 @@ interface Functionary {
   email: string | null
   department_id: number | null
   district_id: number
-  departamento_id: number
+  community_id: number
   active: boolean
 }
 
 const getDataUpdate = async (idValue: string | RouteParamValue[]) => {
   try {
-    await $fetch(`/functionaries/${idValue}`).then(function (res) {
-      setFieldValue('ci', res.people.ci)
-      setFieldValue('active', res.active)
-      setFieldValue('name', res.people.name)
-      setFieldValue('last_name', res.people.last_name)
-      setFieldValue('date_birth', res.people.date_birth)
-      setFieldValue('nationality', res.people.nationality)
-      setFieldValue('gender', res.people.gender)
-      setFieldValue('email', res.people.email)
-      setFieldValue('phone', res.people.phone)
+    await $fetch(`/community_members/${idValue}`).then(function (res) {
       findDepartmentByDistrict(res.people.district_id)
       selectDepartment()
-      setFieldValue('district_id', res.people.district_id)
-      setFieldValue('address', res.people.address)
-      setFieldValue('departamento_id', res.departamento_id)
+      setValues({
+        ci: res.people.ci,
+        name: res.people.name,
+        last_name: res.people.last_name,
+        date_birth: res.people.date_birth,
+        nationality: res.people.nationality,
+        gender: res.people.gender,
+        email: res.people.email,
+        phone: res.people.phone,
+        address: res.people.address,
+        district_id: res.people.district_id,
+        community_id: res.community_id,
+        active: res.active,
+      })
     })
   }
   catch (err: any) {
@@ -74,7 +76,10 @@ const validationSchema = toTypedSchema(
     ci: string({ required_error: 'El campo no puede estar vacio' }),
     name: string({ required_error: 'El campo no puede estar vacio' }),
     last_name: string({ required_error: 'El campo no puede estar vacio' }),
-    date_birth: string({ required_error: 'El campo no puede estar vacio' }),
+    date_birth: date({
+      required_error: 'Los datos no pueden ser Null',
+      invalid_type_error: 'Los datos no pueden ser Null',
+    }),
     gender: string({ required_error: 'El campo no puede estar vacio' }),
     nationality: string({ required_error: 'El campo no puede estar vacio' }),
     address: string().nullish(),
@@ -82,12 +87,12 @@ const validationSchema = toTypedSchema(
     email: string().nullish(),
     department_id: number().nullish(),
     district_id: number({ required_error: 'Seleccione un distrito' }),
-    departamento_id: number({ required_error: 'Seleccione una dependencia' }),
+    community_id: number({ required_error: 'Seleccione a que comunidad pertenece' }),
     active: boolean().nullish(),
   }),
 )
 
-const { values, handleSubmit, isSubmitting, setFieldError, setFieldValue } = useForm<Functionary>({
+const { values, handleSubmit, isSubmitting, setFieldError, setFieldValue, setValues } = useForm<DataForm>({
   validationSchema,
 })
 
@@ -100,7 +105,7 @@ onMounted(async () => {
         value: district.id, label: district.name,
       })),
     }))
-    optionOrganizationChart.value = (await $fetch('departamentos')).data.map((result: any) => ({
+    optionCommunities.value = (await $fetch('communities')).data.map((result: any) => ({
       value: result.id,
       label: result.name,
     }))
@@ -274,22 +279,16 @@ const isStuck = computed(() => {
                 </VControl>
               </VField>
             </div>
-            <div class="column is-4">
+            <div class="column is-3">
               <!-- -------------------- Fecha de Nacimiento ---------------- -->
-              <VField
-                id="date_birth"
-                label="Fecha de Nacimiento"
-              >
+              <VField id="date_birth" label="Fecha de Nacimiento">
                 <VControl>
-                  <VInput class="input" />
-                  <ErrorMessage
-                    class="help is-danger"
-                    name="date_birth"
-                  />
+                  <VDate class="input" />
+                  <ErrorMessage class="help is-danger" name="date_birth" />
                 </VControl>
               </VField>
             </div>
-            <div class="column is-4">
+            <div class="column is-3">
               <!-- -------------------- Nacionalidad --------------------- -->
               <VField
                 id="nationality"
@@ -304,18 +303,28 @@ const isStuck = computed(() => {
                 </VControl>
               </VField>
             </div>
-            <div class="column is-4">
+            <div class="column is-6">
               <!-- -------------------- Sexo --------------------- -->
               <VField
                 id="gender"
                 label="Sexo"
               >
                 <VControl>
-                  <VInput class="input" />
-                  <ErrorMessage
-                    class="help is-danger"
-                    name="gender"
+                  <VRadio
+                    id="gender1"
+                    value="M"
+                    label="Masculino"
+                    color="primary"
+                    square
                   />
+                  <VRadio
+                    id="gender2"
+                    value="F"
+                    label="Femenino"
+                    color="primary"
+                    square
+                  />
+                  <ErrorMessage class="help is-danger" name="gender" />
                 </VControl>
               </VField>
             </div>
@@ -416,14 +425,14 @@ const isStuck = computed(() => {
               >
                 <VControl icon="feather:search">
                   <VMultiselect
-                    :model-value="values.departamento_id"
-                    placeholder="Seleccione la dependencia al que pertenece"
+                    :model-value="values.community_id"
+                    placeholder="Seleccione la comunidad al que pertenece"
                     :close-on-select="true"
                     :searchable="true"
-                    :options="optionOrganizationChart"
-                    @input="setFieldValue('departamento_id', $event)"
+                    :options="optionCommunities"
+                    @input="setFieldValue('community_id', $event)"
                   />
-                  <ErrorMessage class="help is-danger" name="departamento_id" />
+                  <ErrorMessage class="help is-danger" name="community_id" />
                 </VControl>
               </VField>
             </div>

@@ -30,6 +30,15 @@ const emit = defineEmits(['close'])
     >
       <ul>
         <li class="divider" />
+        <li v-if="hasPermission('program communities')">
+          <RouterLink to="/communities">
+            <i
+              aria-hidden="true"
+              class="lnil lnil-tent-alt pr-2"
+            />
+            Comunidades Indígenas
+          </RouterLink>
+        </li>
         <li v-if="hasPermission('program organizations')">
           <RouterLink to="/communities/organizations">
             <i

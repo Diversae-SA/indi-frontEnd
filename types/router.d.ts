@@ -45,6 +45,8 @@ declare module 'vue-router/auto/routes' {
     '/auth': RouteRecordInfo<'/auth', '/auth', Record<never, never>, Record<never, never>>,
     '/auth/login': RouteRecordInfo<'/auth/login', '/auth/login', Record<never, never>, Record<never, never>>,
     '/communities/additional_data/additional': RouteRecordInfo<'/communities/additional_data/additional', '/communities/additional_data/additional', Record<never, never>, Record<never, never>>,
+    '/communities/communities/communities': RouteRecordInfo<'/communities/communities/communities', '/communities/communities/communities', Record<never, never>, Record<never, never>>,
+    '/communities/communities/communities-cu': RouteRecordInfo<'/communities/communities/communities-cu', '/communities/communities/communities-cu', Record<never, never>, Record<never, never>>,
     '/communities/members/community_members': RouteRecordInfo<'/communities/members/community_members', '/communities/members/community_members', Record<never, never>, Record<never, never>>,
     '/communities/members/community-members-cu': RouteRecordInfo<'/communities/members/community-members-cu', '/communities/members/community-members-cu', Record<never, never>, Record<never, never>>,
     '/communities/organizations/organizations': RouteRecordInfo<'/communities/organizations/organizations', '/communities/organizations/organizations', Record<never, never>, Record<never, never>>,

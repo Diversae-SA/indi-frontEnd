@@ -16,7 +16,8 @@ const columns = [
   { data: 'people.address', title: 'Dirección', visible: false },
   { data: 'people.email', title: 'Email' },
   { data: 'people.phone', title: 'Celular' },
-  { data: 'departamento.name', title: 'Dependencia' },
+  { data: 'community.name', title: 'Comunidad' },
+  { data: 'community.town', title: 'Pueblo' },
 ]
 const idData = ref()
 const emit = defineEmits(['updateTable'])
@@ -27,7 +28,7 @@ const buttonTable = [
 const updateTableEvent = ref(false)
 
 const handleEdit = (id: number) => {
-  router.push('/tool/functionary/update/' + id)
+  router.push('/communities/community_members/update/' + id)
 }
 
 const handleDelete = (data: any) => {
@@ -37,7 +38,7 @@ const handleDelete = (data: any) => {
 async function DeleteItem() {
   updateTableEvent.value = false
   emit('updateTable')
-  await deleteHandler('functionaries', idData.value)
+  await deleteHandler('community_members', idData.value)
   modalDeleted.value = false
   updateTableEvent.value = true
   emit('updateTable')
@@ -81,7 +82,7 @@ async function DeleteItem() {
   </div>
   <DataTableWrapper
     :columns="columns"
-    server-side-url="functionaries"
+    server-side-url="community_members"
     :update-table-event="updateTableEvent"
     :button-table="buttonTable"
     @edit="handleEdit"

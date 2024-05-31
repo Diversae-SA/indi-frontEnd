@@ -248,8 +248,7 @@ const routes = [
         props: true,
         meta: { permission: 'community_members edit' },
       },
-
-      // ---------------------------- Organizacion ---------------------------
+      // ---------------------------- Organizacion ---------------------------------------
       {
         component: () => import('/@src/pages/communities/organizations/organizations.vue'),
         path: '/communities/organizations',
@@ -270,6 +269,28 @@ const routes = [
         name: 'communities/organizations/update',
         props: true,
         meta: { permission: 'organizations edit' },
+      },
+      // ---------------------------- Comunidades Indigenas ------------------------------
+      {
+        component: () => import('/@src/pages/communities/communities/communities.vue'),
+        path: '/communities',
+        name: 'communities',
+        props: true,
+        meta: { permission: 'program communities' },
+      },
+      {
+        component: () => import('/@src/pages/communities/communities/communities-cu.vue'),
+        path: '/communities/create',
+        name: 'communities/create',
+        props: true,
+        meta: { permission: 'communities create' },
+      },
+      {
+        component: () => import('/@src/pages/communities/communities/communities-cu.vue'),
+        path: '/communities/update/:id',
+        name: 'communities/update',
+        props: true,
+        meta: { permission: 'communities edit' },
       },
 
       // *********************************** SETTINGS ************************************

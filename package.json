@@ -147,6 +147,7 @@
     "vue": "3.4.15",
     "vue-accessible-color-picker": "5.0.1",
     "vue-i18n": "9.9.0",
+    "vue-imask": "^7.6.1",
     "vue-router": "4.2.5",
     "vue-scrollto": "2.20.0",
     "vue-tippy": "6.4.1",

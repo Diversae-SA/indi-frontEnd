@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import 'https://code.jquery.com/jquery-3.7.1.min.js'
 import DataTable from 'datatables.net-vue3'
 import DataTablesCore, { type Config } from 'datatables.net'
 
@@ -40,21 +41,21 @@ const augmentedColumns = [
     render: function (data: any) {
       let buttons = `<div class="action-button">`
       props.buttonTable.forEach((button: any) => {
-        if (button.button == 'view' && hasPermission(button.permission)) {
+        if (button.button == 'view' && hasPermission(button.permission) || button.button == 'view' && button.permission === 'full') {
           buttons
             = buttons
             + `<button data-id="${data}" class="button is-dark-bg-1 is-info is-light" id="view">
             <i class="iconify" data-icon="feather:eye" aria-hidden="true"></i>
           </button>`
         }
-        if (button.button == 'edit' && hasPermission(button.permission)) {
+        if (button.button == 'edit' && hasPermission(button.permission) || button.button == 'edit' && button.permission === 'full' ) {
           buttons
             = buttons
             + `<button data-id="${data}" class="button is-dark-bg-1 is-warning is-light" id="edit">
             <i class="iconify" data-icon="feather:edit" aria-hidden="true"></i>
           </button>`
         }
-        if (button.button == 'delete' && hasPermission(button.permission)) {
+        if (button.button == 'delete' && hasPermission(button.permission) || button.button == 'delete' && button.permission === 'full') {
           buttons
             = buttons
             + `<button data-id="${data}" class="button is-dark-bg-1 is-danger is-light" id="delete">
@@ -82,8 +83,8 @@ const options = ref({
   ],
   processing: true,
   language: {
+    //url: '/api/plug-ins/1.13.7/i18n/es-ES.json',
     url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json',
-    // url: '/api/plug-ins/1.13.7/i18n/es-ES.json',
     lengthMenu: '_MENU_',
     search: ' ',
     searchPlaceholder: 'Buscar...',
@@ -122,8 +123,8 @@ const options = ref({
     { responsivePriority: 2, targets: 0 },
     { responsivePriority: 1, targets: -1 },
     {
-      targets: 1, // Índice de la columna que deseas modificar
-      width: 200, // Ancho deseado para la columna en píxeles o cualquier otra unidad válida de CSS
+      targets: 1,
+      width: 200,
     },
     {
       targets: '_all',
@@ -145,11 +146,29 @@ const options = ref({
   searching: false, // Ocultar la opción de búsqueda
   paging: false, // Ocultar la paginación
   info: false, // Ocultar el listado de resultados
-  // data: props.modelValue,
 }) as Config
 
 onMounted(function () {
   dt = table.value.dt
+
+  $(document).on('click', '#view', function (event) {
+    event.preventDefault()
+    event.stopPropagation()
+    let id = $(this).data('id')
+    emit('view', id)
+  })
+  $(document).on('click', '#edit', function (event) {
+    event.preventDefault()
+    event.stopPropagation()
+    let id = $(this).data('id')
+    emit('edit', id)
+  })
+  $(document).on('click', '#delete', function (event) {
+    event.preventDefault()
+    event.stopPropagation()
+    let id = $(this).data('id')
+    emit('delete', id)
+  })
 })
 
 const dataTable = ref<Record<string, any>[]>([])
@@ -164,7 +183,7 @@ watch(() => props.modelValue, (newVal) => {
       ref="table"
       :options="options"
       :data="dataTable"
-      class="is-striped is-hoverable is-fullwidth hover nowrap"
+      class="striped is-hoverable is-fullwidth hover"
     />
   </div>
 </template>

@@ -73,7 +73,7 @@ async function DeletedItem() {
     ]"
   />
   <div
-    v-if="hasPermission('program create organizations')"
+    v-if="hasPermission('communities create')"
     class="list-flex-toolbar flex-list-v1"
   >
     <VButtons>
@@ -81,7 +81,6 @@ async function DeletedItem() {
         to="/communities/organizations/create"
         color="primary"
         icon="fas fa-plus"
-        elevated
       >
         Nuevo Registro
       </VButton>
