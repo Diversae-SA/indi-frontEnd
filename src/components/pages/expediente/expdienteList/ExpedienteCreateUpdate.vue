@@ -5,7 +5,13 @@ import { string, number, date, z as zod } from 'zod'
 import { catchFieldError } from '/@src/utils/api/catchFieldError'
 import { useSubmitHandler } from '/@src/composable/useSubmitHandler'
 import { useFetch } from '/@src/composable/useFetch'
+import { useUserSession } from '/@src/stores/userSession'
+import { createLoadingTask, VuePdf } from 'vue3-pdfjs'
+import { type PDFDocumentProxy } from 'pdfjs-dist'
+import { useNotyf } from '/@src/composable/useNotyf'
 
+const userSession = useUserSession()
+const notify = useNotyf()
 const $fetch = useFetch()
 const { submitHandler } = useSubmitHandler()
 const route = useRoute()
@@ -16,20 +22,22 @@ const params = route.params as RouteParams
 const tagsTypeFile = ref()
 const tagsExternalEntity = ref()
 const tagsTypeData = ref()
-const externo = ref(false)
-const document_digital = ref(false)
-
+const external = ref(false)
 const tagsPrioridad = [
   { value: 'Baja', label: 'Baja' },
   { value: 'Media', label: 'Media' },
   { value: 'Alta', label: 'Alta' },
+]
+const typeProcedure = [
+  { value: 'Fisico', label: 'Físico' },
+  { value: 'Digital', label: 'Digital' },
 ]
 const getDataUpdate = async () => {
   try {
     await $fetch(`/external-entities/${params.id}`).then(function (res) {
       setValues({
         name: res.name,
-        abbreviation: res.abbreviation,
+        // abbreviation: res.abbreviation,
       })
     })
   }
@@ -40,44 +48,94 @@ const getDataUpdate = async () => {
 
 const validationSchema = toTypedSchema(
   zod.object({
+    departamento_id: number(),
     type_file_id: number({
       required_error: 'Ingrese el tipo de Expediente',
       invalid_type_error: 'Ingrese el tipo de Expediente',
     }),
+    external_entity_id: number().nullish(),
+    external_nro_expediente: string().nullish(),
     name: string({
       required_error: 'Ingrese el Titulo o Asunto del Expediente',
     }),
-    prioridad: string().nullish(),
+    prioridad: string({
+      required_error: 'Seleccione el tipo de Prioridad',
+      invalid_type_error: 'Seleccione el tipo de Prioridad',
+    }),
     date_end: date().nullish(),
     recurrente: string({
       required_error: 'El campo no puede estar vacio',
     }),
     recurrente_email: string().nullish(),
     recurrente_phone: string().nullish(),
+    type_procedure: string({
+      required_error: 'Selecione el tipo de trámite',
+      invalid_type_error: 'Selecione el tipo de trámite',
+    }),
   }),
 )
 interface ExpedienteForm {
+  departamento_id: number
   type_file_id: number
   external_entity_id: number | null
-  nro_expediente: string | null
+  external_nro_expediente: string | null
   name: string
   prioridad: string | null
   date_end: Date | null
   recurrente: string
   recurrente_email: string | null
   recurrente_phone: string | null
+  type_procedure: string | null
+  sheet_quantity: number | null
+  digital_document: boolean | null
+  observation: string | null
 }
 const { values, handleSubmit, setFieldError, setFieldValue, setValues } = useForm<ExpedienteForm>({
   validationSchema,
+  initialValues: {
+    prioridad: 'Media',
+    type_procedure: 'Fisico',
+    type_file_id: 3,
+    external_entity_id: 1,
+    external_nro_expediente: '6151',
+    name: 'Solicitud de vacaciones',
+    date_end: new Date(),
+    recurrente: 'Alver Romero',
+    recurrente_email: 'alver.romero@gmail.com',
+    recurrente_phone: '0992353343',
+    sheet_quantity: 5,
+    digital_document: false,
+    observation: 'responder por whatsapp',
+  },
 })
 
-// -------------Guardar los Datos ----------------------------
+// -------------Guardar los Datos --------------------------------------------------------
 const onSubmit = handleSubmit(async () => {
+  const formData = new FormData()
+  const form = ref(false)
+  if (params.id) {
+    formData.append('_method', 'PUT')
+    form.value = true
+  }
+  // Crear un objeto para los archivos
+  const filesObject: { [key: string]: File } = {}
+  selectedFiles.value.forEach((file, index) => {
+    filesObject[`file_${index + 1}`] = file
+  })
+
+  // Agregar los archivos como JSON al formData
+  formData.append('files', JSON.stringify(Object.keys(filesObject)))
+  // Agregar cada archivo al formData
+  Object.keys(filesObject).forEach((key) => {
+    formData.append(key, filesObject[key])
+  })
+
+  formData.append('data', JSON.stringify(values))
   await submitHandler(
     'expedientes',
-    values,
+    formData,
     params.id,
-    false,
+    form.value,
     setFieldError,
     '/expediente/expediente_list',
   )
@@ -85,6 +143,7 @@ const onSubmit = handleSubmit(async () => {
 
 onMounted(async () => {
   try {
+    setFieldValue('departamento_id', parseInt(userSession.entity))
     tagsTypeFile.value = (await $fetch('type_files')).data.map((result: any) => ({
       value: result.id,
       label: result.name,
@@ -95,7 +154,7 @@ onMounted(async () => {
       label: result.name,
     }))
     if (params.id) {
-      await getDataUpdate(params.id)
+      await getDataUpdate()
     }
   }
   catch (error) {
@@ -112,6 +171,80 @@ const selectTypeFile = () => {
   }
 }
 
+// -------------------- Add Files --------------------------------------------------------
+const selectedFiles = ref<File[]>([])
+const pdfSrc = ref<string | null>(null)
+const namePdfView = ref('')
+const MAX_TOTAL_SIZE = 20 * 1024 * 1024
+const currentTotalSize = ref(0)
+
+const onFileSelect = (event: Event & { target: { files: FileList } }): void => {
+  const files: FileList = event.target.files as FileList
+  const newFiles: File[] = Array.from(files)
+
+  // Filtrar los archivos para evitar duplicados y comprobar el tamaño
+  const filteredFiles: File[] = newFiles.filter((newFile) => {
+    console.log('filtrando documentos')
+    // Comprobar si el archivo ya está en la lista
+    const isDuplicate = selectedFiles.value.some(file => file.name === newFile.name && file.size === newFile.size)
+
+    if (isDuplicate) {
+      notify.error(`El archivo ${newFile.name} ya ha sido adjuntado.`)
+      return false
+    }
+
+    const newSize = currentTotalSize.value + newFile.size
+    if (newSize > MAX_TOTAL_SIZE) {
+      notify.error(`Agregar el archivo ${newFile.name} excede el límite de 20 MB.`)
+      return false
+    }
+    return true
+  })
+
+  // Agregar los archivos filtrados a la lista de archivos seleccionados
+  selectedFiles.value.push(...filteredFiles)
+
+  // Calcular el tamaño total actual de los archivos seleccionados
+  currentTotalSize.value = selectedFiles.value.reduce((total, file) => total + file.size, 0)
+
+  // Actualizar la fuente del PDF si hay archivos seleccionados
+  if (selectedFiles.value.length > 0) {
+    pdfSrc.value = URL.createObjectURL(selectedFiles.value[0])
+  }
+  else {
+    pdfSrc.value = null
+  }
+  event.target.value = ''
+}
+const removeFile = (index: number): void => {
+  selectedFiles.value.splice(index, 1)
+  currentTotalSize.value = selectedFiles.value.reduce((total, file) => total + file.size, 0)
+}
+
+const pdfViewOpen = ref(false)
+const numOfPages = ref(0)
+const allowedTypes = ['application/pdf']
+
+function getPathPdf(index: number) {
+  return URL.createObjectURL(selectedFiles.value[index])
+}
+
+const openPdfViewer = async (index: number) => {
+  const selectedFile = selectedFiles.value[index]
+  if (selectedFile && allowedTypes.includes(selectedFile.type)) {
+    pdfSrc.value = URL.createObjectURL(selectedFile)
+    namePdfView.value = selectedFile.name
+    numOfPages.value = 0
+    const loadingTask = ref<PDFLoadingTask | null>(null)
+
+    loadingTask.value = createLoadingTask(pdfSrc.value)
+    loadingTask.value.promise.then((pdf: PDFDocumentProxy) => {
+      numOfPages.value = pdf.numPages
+    })
+  }
+  pdfViewOpen.value = true
+}
+
 const { y } = useWindowScroll()
 const isStuck = computed(() => {
   return y.value > 30
@@ -124,7 +257,7 @@ const isStuck = computed(() => {
     separator="bullet"
     :items="[
       {
-        label: 'Vuero',
+        label: 'INDI',
         hideLabel: true,
         icon: 'feather:home',
         to: '/app',
@@ -156,20 +289,11 @@ const isStuck = computed(() => {
                 Cancel
               </VButton>
               <VButton
-                v-if="params.id"
                 type="submit"
                 color="primary"
                 raised
               >
-                Actualizar
-              </VButton>
-              <VButton
-                v-else
-                type="submit"
-                color="primary"
-                raised
-              >
-                Guardar
+                {{ params.id ? 'Actualizar' : 'Guardar' }}
               </VButton>
             </div>
           </div>
@@ -178,11 +302,11 @@ const isStuck = computed(() => {
       <div class="form-body">
         <div class="form-section">
           <div class="columns is-multiline">
-            <!------------- Type Expedientes --------------------------->
+            <!------------- Type Expedientes -------------------------------------------->
             <div class="column is-8">
               <VField
                 id="type_file_id"
-                label="Tipo de expediente"
+                label="*Tipo de expediente"
               >
                 <VControl>
                   <VMultiselect
@@ -197,12 +321,12 @@ const isStuck = computed(() => {
                 </VControl>
               </VField>
             </div>
-            <!------------- Documentos Externo --------------------------->
+            <!------------- Documentos Externo ------------------------------------------>
             <div class="column is-4">
               <VField>
                 <VControl>
                   <VSwitchSegment
-                    v-model="externo"
+                    v-model="external"
                     label-true=""
                     label-false="Expediente Externo"
                     color="primary"
@@ -211,8 +335,8 @@ const isStuck = computed(() => {
               </VField>
             </div>
           </div>
-          <!------------- Entidad Externa --------------------------->
-          <div v-if="externo" class="columns is-multiline">
+          <!------------- Entidad Externa ----------------------------------------------->
+          <div v-if="external" class="columns is-multiline">
             <div class="column is-8">
               <VField
                 id="external_entity_id"
@@ -232,7 +356,7 @@ const isStuck = computed(() => {
 
             <!------------- numero de expediente externo --------------->
             <div class="column is-4">
-              <VField id="nro_expediente" label="Nro. Expediente (Externo)">
+              <VField id="external_nro_expediente" label="Nro. Expediente (Externo)">
                 <VControl>
                   <VInput type="text" placeholder="" />
                 </VControl>
@@ -240,20 +364,48 @@ const isStuck = computed(() => {
             </div>
           </div>
           <div class="columns is-multiline">
-            <!------------- Título/Asunto  --------------------------->
+            <!------------- Título/Asunto  ---------------------------------------------->
             <div class="column is-12">
-              <VField id="name" label="Título/Asunto">
+              <VField id="name" label="*Título/Asunto">
                 <VControl>
                   <VInput type="text" placeholder="" />
                   <ErrorMessage class="help is-danger" name="name" />
                 </VControl>
               </VField>
             </div>
-            <!------------- Pioridad --------------------------->
-            <div class="column is-3">
+            <!------------- Recurrente -------------------------------------------------->
+            <div class="column is-12">
+              <VField id="recurrente" label="*Recurrente">
+                <VControl>
+                  <VInput type="text" placeholder="" />
+                  <ErrorMessage class="help is-danger" name="recurrente" />
+                </VControl>
+              </VField>
+            </div>
+            <!------------- Email del Recurrente ---------------------------------------->
+            <div class="column is-6">
+              <VField id="recurrente_email" label="Email del recurrente">
+                <VControl>
+                  <VInput type="text" placeholder="" />
+                </VControl>
+              </VField>
+            </div>
+            <!------------- Phone del Recurrente ---------------------------------------->
+            <div class="column is-6">
+              <VField id="recurrente_phone" label="Celular del recurrente">
+                <VControl>
+                  <VInput type="text" />
+                </VControl>
+              </VField>
+            </div>
+            <div class="column is-12">
+              <hr>
+            </div>
+            <!------------- Pioridad ---------------------------------------------------->
+            <div class="column is-4">
               <VField
                 id="prioridad"
-                label="Prioridad"
+                label="*Prioridad"
               >
                 <VControl>
                   <VMultiselect
@@ -263,10 +415,11 @@ const isStuck = computed(() => {
                     :options="tagsPrioridad"
                     @input="setFieldValue('prioridad', $event)"
                   />
+                  <ErrorMessage class="help is-danger" name="prioridad" />
                 </VControl>
               </VField>
             </div>
-            <!------------- Fecha de finiquito --------------------------->
+            <!------------- Fecha de finiquito ------------------------------------------>
             <div class="column is-4">
               <VField
                 id="date_end"
@@ -281,37 +434,29 @@ const isStuck = computed(() => {
                 </VControl>
               </VField>
             </div>
-            <!------------- Recurrente --------------------------->
-            <div class="column is-12">
-              <VField id="recurrente" label="Recurrente">
-                <VControl>
-                  <VInput type="text" placeholder="" />
-                  <ErrorMessage class="help is-danger" name="recurrente" />
-                </VControl>
-              </VField>
-            </div>
-            <!------------- Email del Recurrente ------------------>
-            <div class="column is-6">
-              <VField id="recurrente_email" label="Email del recurrente">
-                <VControl>
-                  <VInput type="text" placeholder="" />
-                </VControl>
-              </VField>
-            </div>
-            <!------------- Phone del Recurrente -------------------->
-            <div class="column is-6">
-              <VField id="recurrente_phone" label="Celular del recurrente">
-                <VControl>
-                  <VInput type="text" placeholder="" />
-                </VControl>
-              </VField>
-            </div>
-            <!------------- Documentos Digital/Fisico --------------------------->
+            <!------------- Tipo de Documento ------------------------------------------->
             <div class="column is-4">
-              <VField>
+              <VField
+                id="type_procedure"
+                label="*Tipo de trámite"
+              >
+                <VControl>
+                  <VMultiselect
+                    :model-value="values.type_procedure"
+                    :close-on-select="true"
+                    :searchable="true"
+                    :options="typeProcedure"
+                    @input="setFieldValue('type_procedure', $event)"
+                  />
+                  <ErrorMessage class="help is-danger" name="type_procedure" />
+                </VControl>
+              </VField>
+            </div>
+            <!------------- Documentos Digital/Fisico ----------------------------------->
+            <div class="column is-4">
+              <VField id="digital_document">
                 <VControl>
                   <VSwitchSegment
-                    v-model="document_digital"
                     label-true=""
                     label-false="Generar Documento Digital"
                     color="primary"
@@ -319,26 +464,71 @@ const isStuck = computed(() => {
                 </VControl>
               </VField>
             </div>
-            <!------------- Adjunto Documento --------------------------->
-            <div v-if="!document_digital" class="column is-12">
-              <VField grouped>
-                <VControl>
-                  <div class="file has-name">
-                    <label class="file-label">
-                      <input
-                        class="file-input"
-                        type="file"
-                        name="resume"
-                      >
-                      <span class="file-cta">
-                        <span class="file-icon">
-                          <i class="fas fa-cloud-upload-alt" />
+            <!------------- Adjunto Documento ------------------------------------------->
+            <div v-if="!values.digital_document" class="column is-12">
+              <!------------- Adjuntar Archivos ------------------->
+              <div class="column is-3">
+                <VField grouped>
+                  <VControl>
+                    <div class="file">
+                      <label class="file-label">
+                        <input
+                          class="file-input"
+                          accept="application/pdf"
+                          type="file"
+                          name="resume"
+                          multiple
+                          @change.prevent="onFileSelect"
+                        >
+                        <span class="file-cta">
+                          <span class="file-icon">
+                            <i class="fas fa-cloud-upload-alt" />
+                          </span>
+                          <span class="file-label">Agregar Archivos</span>
                         </span>
-                        <span class="file-label"> Adjuntar PDF… </span>
-                      </span>
-                      <span class="file-name light-text" />
-                    </label>
+                      </label>
+                    </div>
+                  </VControl>
+                </VField>
+              </div>
+              <div class="column is-3">
+                <p v-if="currentTotalSize > 0">
+                  Total: {{ (currentTotalSize / (1024 * 1024)).toFixed(1) }} Mb
+                </p>
+              </div>
+              <div class="columns is-multiline">
+                <div class="column is-12">
+                  <div class="form-section-output">
+                    <div
+                      v-for="(file, index) in selectedFiles"
+                      :key="file.name + file.size"
+                      class="pdf-view"
+                    >
+                      <VIconButton
+                        class="btn-delete-pdf"
+                        icon="feather:trash-2"
+                        color="danger"
+                        outlined
+                        @click.prevent="removeFile(index)"
+                      />
+                      <VuePdf
+                        v-if="selectedFiles.length > 0"
+                        :key="index"
+                        :src="getPathPdf(index)"
+                        :page="1"
+                        @click.prevent="openPdfViewer(index)"
+                      />
+                      <span class="items-label">{{ file.name }}</span>
+                    </div>
                   </div>
+                </div>
+              </div>
+            </div>
+            <!------------- Cantidad de Fojas ------------------------------------------->
+            <div v-if="!values.digital_document" class="column is-6">
+              <VField id="sheet_quantity" label="Cant. inicial de fojas">
+                <VControl>
+                  <VNumberInput type="text" />
                 </VControl>
               </VField>
             </div>
@@ -362,9 +552,66 @@ const isStuck = computed(() => {
                 </div>
               </div>
             </div>
+            <!------------- Observación ------------------------------------------------->
+            <div class="column is-12">
+              <hr>
+              <VField id="observation" label="Observación">
+                <VControl>
+                  <VInput type="text" />
+                </VControl>
+              </VField>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </form>
+  <VModal
+    :title="namePdfView"
+    :open="pdfViewOpen"
+    size="big"
+    @close="pdfViewOpen = false"
+  >
+    <template #content>
+      <div v-if="pdfSrc">
+        <VuePdf
+          v-for="page in numOfPages"
+          :key="page"
+          :src="pdfSrc"
+          :page="page"
+        />
+      </div>
+    </template>
+  </VModal>
 </template>
+<style lang="scss" scoped>
+.pdf-view {
+  padding: 10px;
+  width: 200px;
+  height: fit-content;
+  background: var(--placeholder);
+  border-radius: 8px;
+  margin: 5px;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: var(--font), serif;
+  font-size: 0.9rem;
+}
+.btn-delete-pdf{
+  position: absolute;
+  z-index: 100;
+  margin-left: 142px;
+}
+.form-section-output {
+  display: flex;
+  flex-wrap: wrap;
+
+  .items-label {
+    width: 100%;
+  }
+}
+.modal-card-body {
+  background-color: var(--placeholder) !important;
+}
+</style>

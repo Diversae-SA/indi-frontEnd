@@ -65,6 +65,23 @@ async function logout() {
         </div>
       </div>
 
+      <RouterLink
+        to="/profile"
+        role="menuitem"
+        class="dropdown-item is-media"
+      >
+        <div class="icon">
+          <i
+            aria-hidden="true"
+            class="lnil lnil-user-alt"
+          />
+        </div>
+        <div class="meta">
+          <span>Perfil</span>
+          <span>Detalle de su perfil</span>
+        </div>
+      </RouterLink>
+
       <div class="dropdown-item is-button">
         <VButton
           class="logout-button"

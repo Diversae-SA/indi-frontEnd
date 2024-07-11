@@ -39,6 +39,15 @@ const emit = defineEmits(['close'])
             Lista de Expedientes
           </RouterLink>
         </li>
+        <li v-if="hasPermission('program expedienteDetails')">
+          <RouterLink to="/expediente/expediente_details">
+            <i
+              aria-hidden="true"
+              class="lnil lnil-library pr-2"
+            />
+            Detalle de Expediente
+          </RouterLink>
+        </li>
       </ul>
     </div>
   </div>

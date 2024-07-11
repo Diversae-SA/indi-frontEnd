@@ -179,7 +179,7 @@ const props = defineProps<VViewWrapperProps>()
   .view-wrapper {
     width: 100% !important;
     margin-inline-start: 0 !important;
-    margin-top: 60px !important;
+    // margin-top: 60px !important;
     padding-inline-start: 40px;
     padding-inline-end: 40px;
 
@@ -200,7 +200,7 @@ const props = defineProps<VViewWrapperProps>()
   .view-wrapper {
     width: 100% !important;
     margin-inline-start: 0 !important;
-    margin-top: 60px !important;
+    // margin-top: 60px !important;
 
     &.is-pushed-messages {
       margin-inline-start: 0 !important;

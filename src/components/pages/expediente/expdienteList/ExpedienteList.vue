@@ -10,49 +10,42 @@ const router = useRouter()
 const modalDeleted = ref(false)
 const updateTableEvent = ref(false)
 const columns = [
-  { data: 'id', title: 'ID' },
-  { data: 'nro_exp', title: 'Nro Exp', typeSearch: 'input' },
-  { data: 'date', title: 'Fecha', typeSearch: 'input' },
-  { data: 'date', title: 'Dependencia Origen.', typeSearch: 'input' },
-  { data: 'date', title: 'Titulo/Asunto', typeSearch: 'input' },
-  { data: 'date', title: 'Recurrente', typeSearch: 'input' },
-  { data: 'date', title: 'Tipo Movimiento', typeSearch: 'input' },
-  { data: 'date', title: 'Fecha Movimiento', typeSearch: 'input' },
-  { data: 'date', title: 'Dependencia Destino', typeSearch: 'input' },
-  { data: 'date', title: 'Archivo Adjunto', typeSearch: 'input' },
+  { data: 'id', title: 'ID', visible: false },
+  { data: 'nro_expediente', title: 'Nro Exp', typeSearch: 'input' },
+  {
+    data: 'created_at',
+    title: 'Fecha',
+    render: function (data, type) {
+      if (type === 'display' || type === 'filter') {
+        const date = new Date(data)
+        const day = String(date.getDate()).padStart(2, '0')
+        const month = String(date.getMonth() + 1).padStart(2, '0')
+        const year = date.getFullYear()
+        return `${day}-${month}-${year}`
+      }
+      return data
+    },
+    typeSearch: 'input'
+  },
+  { data: 'departamento.name', title: 'Dependencia Origen.', typeSearch: 'input' },
+  { data: 'name', title: 'Titulo/Asunto', typeSearch: 'input' },
+  { data: 'recurrente', title: 'Recurrente', typeSearch: 'input' },
+  { data: 'type_file.name', title: 'Tipo de Documento', typeSearch: 'input', visible: false },
+  { data: 'deleted_at', title: 'Tipo de Movimiento', typeSearch: 'input' },
+  { data: 'deleted_at', title: 'Fecha de Movimiento', typeSearch: 'input' },
+  { data: 'deleted_at', title: 'Dependencia Destino', typeSearch: 'input', visible: false },
+  { data: 'deleted_at', title: 'Archivo Adjunto', typeSearch: 'input', visible: false },
 ]
 const idData = ref(null)
 const emit = defineEmits(['updateTable'])
 const buttonTable = [
-  { button: 'edit', permission: 'externalEntities edit' },
-  { button: 'delete', permission: 'externalEntities delete' },
+  { button: 'view', permission: 'full' },
 ]
 
-const handleEdit = (id: number) => {
-  router.push({ path: '/tool/externalEntity/update/' + id })
+const handleView = (id: number) => {
+  router.push({ path: '/expediente/expediente_details/view/' + id })
 }
-const handleDelete = (data: any) => {
-  idData.value = data
-  modalDeleted.value = true
-}
-async function DeletedItem() {
-  try {
-    updateTableEvent.value = false
-    emit('updateTable')
-    const res = await api.delete(`/expedientes/${idData.value}`)
-    modalDeleted.value = false
-    updateTableEvent.value = true
-    emit('updateTable')
-    if (res.status == 200) {
-      notify.success(`Datos eliminados Correctamente!`)
-    } else {
-      notify.error(res.data.message)
-    }
-  } catch (err: any) {
-    modalDeleted.value = false
-    notify.error(formatError(err))
-  }
-}
+
 </script>
 
 <template>
@@ -90,24 +83,6 @@ async function DeletedItem() {
     server-side-url="expedientes"
     :update-table-event="updateTableEvent"
     :button-table="buttonTable"
-    @edit="handleEdit"
-    @delete="handleDelete"
+    @view="handleView"
   />
-  <VModal
-    title="Eliminar Datos"
-    :open="modalDeleted"
-    size="small"
-    actions="center"
-    @close="modalDeleted = false"
-  >
-    <template #content>
-      <VPlaceholderSection
-        title="¿Eliminar Registro? "
-        subtitle="Los cambios ya no se podran revertir!"
-      />
-    </template>
-    <template #action>
-      <VButton color="danger" raised @click="DeletedItem()">Eliminar</VButton>
-    </template>
-  </VModal>
 </template>

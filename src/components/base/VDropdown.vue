@@ -439,7 +439,7 @@ defineExpose({
     }
 
     svg {
-      color: var(--dark-dark-text);
+      color: var(--dark-dark-text) !important;
     }
   }
 

@@ -3,6 +3,7 @@ import layoutAuth from '/@src/pages/auth.vue'
 import layoutApp from '/@src/pages/app.vue'
 import { hasPermission } from '/@src/utils/permissions'
 
+// @ts-ignore
 const routes = [
   {
     path: '/',
@@ -192,7 +193,7 @@ const routes = [
       },
 
       // ----- EXPEDIENTES --------------------------------------------------
-      // ---------------------------- Lista de Expedientes -----------------
+      // ---------------------------- Lista de Expedientes -------------------------------
       {
         component: () => import('/@src/pages/expendiente/listExpediente/expedientes.vue'),
         path: '/expediente/expediente_list',
@@ -206,6 +207,21 @@ const routes = [
         name: 'expediente/expediente_list/create',
         props: true,
         meta: { permission: 'expedientes create' },
+      },
+      // ---------------------------- Lista de Expedientes -----------------
+      {
+        component: () => import('/@src/pages/expendiente/detailExpediente/expediente-details.vue'),
+        path: '/expediente/expediente_details',
+        name: 'expediente/expediente_details',
+        props: true,
+        meta: { permission: 'program expedienteDetails' },
+      },
+      {
+        component: () => import('/@src/pages/expendiente/detailExpediente/expediente-details.vue'),
+        path: '/expediente/expediente_details/view/:id',
+        name: 'expediente/expediente_details/view',
+        props: true,
+        meta: { permission: 'program expedienteDetails' },
       },
 
       // --******************************** COMUNIDADES **********************************
@@ -362,6 +378,15 @@ const routes = [
         name: '/setting/users/update',
         props: true,
         meta: { permission: 'users edit' },
+      },
+
+      // ---------------------------- Profile ------------------------------
+      {
+        component: () => import('/@src/pages/profile/profile.vue'),
+        path: '/profile',
+        name: '/profile',
+        props: true,
+        // meta: { permission: 'program ' },
       },
     ],
   },

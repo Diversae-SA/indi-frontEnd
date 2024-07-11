@@ -20,13 +20,13 @@ const props = withDefaults(
 const viewWrapper = useViewWrapper()
 const route = useRoute()
 const nameSubside = route.path
-const firstSegment = nameSubside.split('/')[1]
-console.log(firstSegment)
+const firstSegment = ref(nameSubside.split('/')[1])
+// console.log(firstSegment)
 const panels = usePanels()
 const isMobileSidebarOpen = ref(false)
-const isDesktopSidebarOpen = ref(true) // props.openOnMounted
+const isDesktopSidebarOpen = firstSegment.value == 'profile' ? ref(false) : ref(true) // props.openOnMounted
 const activeMobileSubsidebar = ref(firstSegment) // props.defaultSidebar
-switchSidebar(firstSegment)
+switchSidebar(firstSegment.value)
 
 function switchSidebar(id: string) {
   if (id === activeMobileSubsidebar.value) {
@@ -34,7 +34,7 @@ function switchSidebar(id: string) {
     activeMobileSubsidebar.value = id
   }
   else {
-    isDesktopSidebarOpen.value = true
+    isDesktopSidebarOpen.value = id != 'profile'
     activeMobileSubsidebar.value = id
   }
 }
@@ -265,7 +265,9 @@ watch(
         >
           <div class="page-title has-text-centered">
             <!-- Sidebar Trigger -->
+            <div v-if="firstSegment == 'profile'" />
             <div
+              v-else
               class="vuero-hamburger nav-trigger push-resize"
               tabindex="0"
               role="button"
