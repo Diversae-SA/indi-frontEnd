@@ -165,8 +165,10 @@ const options = ref({
   processing: true,
   serverSide: true,
   language: {
-    url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json',
+    // url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json',
     // url: '/api/plug-ins/1.13.7/i18n/es-ES.json',
+    // url: '/api/plug-ins/1.13.7/i18n/es-ES.json',
+    url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json',
     lengthMenu: '_MENU_',
     search: ' ',
     searchPlaceholder: 'Buscar...',
