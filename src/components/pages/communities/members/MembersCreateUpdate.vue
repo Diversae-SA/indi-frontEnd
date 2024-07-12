@@ -419,8 +419,8 @@ const isStuck = computed(() => {
             <div class="column is-12">
               <!-- -------------------- Dependencia --------------------------- -->
               <VField
-                id="departamento_id"
-                label="Dependencia"
+                id="community_id"
+                label="Comunidad"
                 class="is-autocomplete-select"
               >
                 <VControl icon="feather:search">

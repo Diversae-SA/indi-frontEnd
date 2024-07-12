@@ -19,6 +19,7 @@ const userSession = useUserSession()
 interface RouteParams { id?: string }
 const params = route.params as RouteParams
 const logoDataUrl = ref()
+const optionDepartments = ref()
 
 const columnMov = [
   {
@@ -45,6 +46,16 @@ const optionMov = [
   { label: 'Salida', value: 1 },
   { label: 'Gestion', value: 2 },
   { label: 'Finiquito', value: 3 },
+]
+
+const optionGestion = [
+  { label: 'Comentar', value: 1 },
+  { label: 'Responder', value: 2 },
+  { label: 'Providenciar', value: 3 },
+  { label: 'Adjuntar Documentos', value: 4 },
+  { label: 'Cambiar/Asignar Plazo', value: 5 },
+  { label: 'Cambiar/Asignar Prioridad', value: 6 },
+  { label: 'Asignar Responsable', value: 7 },
 ]
 
 interface ExpedienteForm {
@@ -200,6 +211,10 @@ onMounted(async () => {
     if (params.id) {
       await searchDocument()
     }
+    optionDepartments.value = (await $fetch('departamentos')).data.map((result: any) => ({
+      value: result.id,
+      label: result.name,
+    }))
     const reader = new FileReader()
     reader.onload = (e: any) => {
       logoDataUrl.value = e.target.result
@@ -218,6 +233,7 @@ onMounted(async () => {
 // -------------Save or Update -----------------------------------------------------------
 interface userForm {
   type_mov: number
+  type_action: number
   profile_path: string | null
   people_id: number
   name: string | null
@@ -248,6 +264,21 @@ const { values, handleSubmit, isSubmitting, setFieldError, setFieldValue } = use
 const onSubmit = handleSubmit(async () => {
   console.log(values)
 })
+
+const addFiles = ref(false)
+const dependencia = ref(false)
+const gestion = ref(false)
+function showitems() {
+  dependencia.value = false
+  addFiles.value = false
+  gestion.value = false
+  if (values.type_mov == 1) {
+    dependencia.value = true
+  } else if (values.type_mov == 2) {
+    gestion.value = true
+    addFiles.value = true
+  }
+}
 
 const { y } = useWindowScroll()
 const isStuck = computed(() => {
@@ -383,18 +414,39 @@ const isStuck = computed(() => {
               >
                 <VControl icon="feather:search">
                   <VMultiselect
-                    :model-value="values.people_id"
+                    :model-value="values.type_mov"
                     placeholder="Seleccione un tipo de movimiento"
                     :close-on-select="true"
                     :searchable="true"
                     :options="optionMov"
-                    @input="setFieldValue('people_id', $event)"
+                    @select="showitems"
+                    @input="setFieldValue('type_mov', $event)"
                   />
                   <ErrorMessage class="help is-danger" name="people_id" />
                 </VControl>
               </VField>
+              <!-- --------------------- Tipo de Accion --------------------------- -->
+              <VField
+                v-if="gestion"
+                id="type_action"
+                label="Tipo de Accion"
+                class="is-autocomplete-select"
+              >
+                <VControl icon="feather:search">
+                  <VMultiselect
+                    :model-value="values.type_action"
+                    placeholder="Seleccione un tipo de accion"
+                    :close-on-select="true"
+                    :searchable="true"
+                    :options="optionGestion"
+                    @select="showitems"
+                    @input="setFieldValue('type_action', $event)"
+                  />
+                  <ErrorMessage class="help is-danger" name="type_action" />
+                </VControl>
+              </VField>
               <!------------- Adjunto Documento ------------------------------------------->
-              <div v-if="values.type_mov == 1" class="column is-12">
+              <div v-if="addFiles" class="column is-12">
                 <!------------- Adjuntar Archivos ------------------->
                 <div class="column is-3">
                   <VField grouped>
@@ -453,6 +505,22 @@ const isStuck = computed(() => {
                   </div>
                 </div>
               </div>
+              <!------------- Dependencia ------------------------------------------->
+              <VField
+                v-if="dependencia"
+                id="external_entity_id"
+                label="Dependencia"
+              >
+                <VControl>
+                  <VMultiselect
+                    :model-value="values.dependencie"
+                    :close-on-select="true"
+                    :searchable="true"
+                    :options="optionDepartments"
+                    @input="setFieldValue('external_entity_id', $event)"
+                  />
+                </VControl>
+              </VField>
               <VField id="observation" label="Observación/Comentario">
                 <VControl>
                   <VInput type="text" />
@@ -503,6 +571,36 @@ const isStuck = computed(() => {
 
 .card-inner{
   padding-top: 5px !important;
+}
+
+.pdf-view {
+  padding: 10px;
+  width: 200px;
+  height: fit-content;
+  background: var(--placeholder);
+  border-radius: 8px;
+  margin: 5px;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: var(--font), serif;
+  font-size: 0.9rem;
+}
+.btn-delete-pdf{
+  position: absolute;
+  z-index: 100;
+  margin-left: 142px;
+}
+.form-section-output {
+  display: flex;
+  flex-wrap: wrap;
+
+  .items-label {
+    width: 100%;
+  }
+}
+.modal-card-body {
+  background-color: var(--placeholder) !important;
 }
 
 </style>
