@@ -93,19 +93,19 @@ interface ExpedienteForm {
 const { values, handleSubmit, setFieldError, setFieldValue, setValues } = useForm<ExpedienteForm>({
   validationSchema,
   initialValues: {
-    /* prioridad: 'Media',
+    prioridad: 'Media',
     type_procedure: 'Fisico',
-    type_file_id: 3,
-    external_entity_id: 1,
-    external_nro_expediente: '6151',
-    name: 'Solicitud de vacaciones',
+    // type_file_id: null,
+    external_entity_id: null,
+    external_nro_expediente: null,
+    // name: 'Solicitud de vacaciones',
     date_end: new Date(),
-    recurrente: 'Alver Romero',
-    recurrente_email: 'alver.romero@gmail.com',
-    recurrente_phone: '0992353343',
-    sheet_quantity: 5,
+    //recurrente: 'Alver Romero',
+    //recurrente_email: 'alver.romero@gmail.com',
+    //recurrente_phone: '0992353343',
+    sheet_quantity: 0,
     digital_document: false,
-    observation: 'responder por whatsapp', */
+    observation: '',
   },
 })
 
