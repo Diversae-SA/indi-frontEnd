@@ -93,7 +93,7 @@ interface ExpedienteForm {
 const { values, handleSubmit, setFieldError, setFieldValue, setValues } = useForm<ExpedienteForm>({
   validationSchema,
   initialValues: {
-    prioridad: 'Media',
+    /* prioridad: 'Media',
     type_procedure: 'Fisico',
     type_file_id: 3,
     external_entity_id: 1,
@@ -105,7 +105,7 @@ const { values, handleSubmit, setFieldError, setFieldValue, setValues } = useFor
     recurrente_phone: '0992353343',
     sheet_quantity: 5,
     digital_document: false,
-    observation: 'responder por whatsapp',
+    observation: 'responder por whatsapp', */
   },
 })
 
