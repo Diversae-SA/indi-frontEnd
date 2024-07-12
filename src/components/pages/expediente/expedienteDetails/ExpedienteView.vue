@@ -98,7 +98,8 @@ function formatDate(dateString: string, hour: boolean): string {
 // ---------------------------------- Descargar archivo full -----------------------------
 function openFile(url: string) {
   // Suponiendo que la URL base es el origen de la API, por ejemplo: 'https://mi-api.com/'
-  const baseURL = 'http://localhost:8081/'
+  // const baseURL = 'http://localhost:8081/'
+  const baseURL = 'http://sgdoc.indi.gov.py:90/'
   const fileURL = baseURL + url
 
   // Abre el archivo en una nueva pestaña
