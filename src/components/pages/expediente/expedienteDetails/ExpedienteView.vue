@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup lang="ts" xmlns="http://www.w3.org/1999/html">
 import { useNotyf } from '/@src/composable/useNotyf'
 import { useFetch } from '/@src/composable/useFetch'
 import pdfMake from 'pdfmake/build/pdfmake'
@@ -6,10 +6,10 @@ import logo from '/@src/assets/illustrations/logo/logo_indi.png'
 import Vfs_fonts from 'pdfmake/build/vfs_fonts'
 import { useUserSession } from '/@src/stores/userSession'
 (<any>pdfMake).addVirtualFileSystem(Vfs_fonts)
-import JsBarcode from 'jsbarcode'
 
 const notify = useNotyf()
 const route = useRoute()
+const router = useRouter()
 const $fetch = useFetch()
 const userSession = useUserSession()
 interface RouteParams { id?: string }
@@ -39,6 +39,7 @@ const nro_expediente = ref('')
 interface ExpedienteForm {
   id: string
   path_file_all: string
+  path_file_portada: string
   type_file: string
   nro_expediente: string
   name: string
@@ -59,6 +60,7 @@ async function searchDocument() {
       expedienteData.value = {
         id: res.id,
         path_file_all: res.path_file_all,
+        path_file_portada: res.path_file_portada,
         type_file: res.type_file.name,
         nro_expediente: res.nro_expediente,
         name: res.name,
@@ -78,6 +80,10 @@ async function searchDocument() {
   }
 }
 
+function addMov() {
+  router.push({ path: '/expediente/expediente_mov/' + params.id })
+}
+
 function formatDate(dateString: string, hour: boolean): string {
   const date = new Date(dateString)
   const day = date.getDate().toString().padStart(2, '0')
@@ -87,258 +93,6 @@ function formatDate(dateString: string, hour: boolean): string {
   const minutes = date.getMinutes().toString().padStart(2, '0')
 
   return hour ? `${day}-${month}-${year} ${hours}:${minutes}` : `${day}-${month}-${year}`
-}
-
-function generateBarcode(text) {
-  const canvas = document.createElement('canvas')
-  JsBarcode(canvas, text, {
-    format: 'CODE128',
-    displayValue: false,
-    width: 2, // Más ancho
-    height: 30, // Menos alto
-  })
-  return canvas.toDataURL('image/png')
-}
-
-// --------------------------------- PDF Portada -----------------------------------------
-async function generateAndOpenPDF() {
-  const barcode = generateBarcode('123456789012')
-  let pageOrientation = 'Vertical'
-
-  // const currentDate = new Date()
-  // const formattedDate = formatDate(currentDate.toDateString(), true)
-  const docDefinition = {
-    pageSize: 'A4',
-    pageOrientation: pageOrientation,
-    pageMargins: [40, 40, 40, 40],
-    content: [
-      {
-        image: logoDataUrl.value, // Reemplaza 'logo' con el nombre que le des en images
-        width: 350,
-        alignment: 'center',
-        margin: [0, 0, 0, 20],
-      },
-      {
-        canvas: [
-          {
-            type: 'line',
-            x1: 0,
-            y1: 0,
-            x2: 515,
-            y2: 0,
-            lineWidth: 1,
-          },
-        ],
-        margin: [0, 10, 0, 10],
-      },
-      {
-        columns: [
-          {
-            text: `EXPEDIENTE NRO: ${expedienteData.value.nro_expediente.split('/')[0]}`,
-            style: 'header',
-            alignment: 'left',
-            // margin: [0, 0, 0, 0],
-          },
-          {
-            text: 'AÑO: 2024',
-            style: 'header',
-            alignment: 'right',
-          },
-        ],
-      },
-      {
-        canvas: [
-          {
-            type: 'line',
-            x1: 0,
-            y1: 0,
-            x2: 515,
-            y2: 0,
-            lineWidth: 1,
-          },
-        ],
-        margin: [0, 0, 0, 10],
-      },
-      {
-        columns: [
-          {
-            image: barcode,
-            width: 150,
-            alignment: 'left',
-          },
-          {
-            text: `Fecha: ${formatDate(expedienteData.value.created_at.toString(), false)}`,
-            style: 'headerTitle',
-            alignment: 'right',
-          },
-        ],
-      },
-      {
-        text: `RECURRENTE: ${expedienteData.value.recurrente}`,
-        style: 'headerTitle',
-        alignment: 'left',
-        margin: [6, 10, 0, 0],
-      },
-      {
-        text: `${expedienteData.value.name}`,
-        style: 'headerTitle',
-        alignment: 'center',
-        margin: [6, 10, 0, 0],
-      },
-      {
-        canvas: [
-          {
-            type: 'line',
-            x1: 0,
-            y1: 0,
-            x2: 515,
-            y2: 0,
-            lineWidth: 1,
-          },
-        ],
-        margin: [0, 10, 0, 10],
-      },
-      // -------------------------------- Tipo de Expediente ----------------------------
-      {
-        columns: [
-          {
-            width: 150,
-            text: 'Tipo de Expediente:',
-            style: 'headerSubtitle',
-            alignment: 'right',
-            margin: [0, 10, 10, 0],
-          },
-          {
-            width: '*',
-            text: expedienteData.value.type_file,
-            style: 'headerTitle',
-            alignment: 'left',
-            margin: [0, 10, 10, 0],
-          },
-        ],
-      },
-      // -------------------------------- Entidad de Origen -----------------------------
-      {
-        columns: [
-          {
-            width: 150,
-            text: 'Dependencia de origen: ',
-            style: 'headerSubtitle',
-            alignment: 'right',
-            margin: [0, 10, 10, 0],
-          },
-          {
-            width: '*',
-            text: expedienteData.value.departamento,
-            style: 'headerTitle',
-            alignment: 'left',
-            margin: [0, 10, 10, 0],
-          },
-        ],
-      },
-      // ----------------------- Tipo tramite - Prioridad - finiquito --------------------
-      {
-        columns: [
-          {
-            width: 150,
-            text: 'Tipo de Tramite: ',
-            style: 'headerSubtitle',
-            alignment: 'right',
-            margin: [0, 10, 10, 0],
-          },
-          {
-            width: 50,
-            text: expedienteData.value.type_procedure,
-            style: 'headerTitle',
-            alignment: 'left',
-            margin: [0, 10, 10, 0],
-          },
-          {
-            width: 60,
-            text: 'Prioridad: ',
-            style: 'headerSubtitle',
-            alignment: 'right',
-            margin: [0, 10, 10, 0],
-          },
-          {
-            width: 50,
-            text: expedienteData.value.prioridad,
-            style: 'headerTitle',
-            alignment: 'left',
-            margin: [0, 10, 10, 0],
-          },
-          {
-            width: 50,
-            text: 'Plazo: ',
-            style: 'headerSubtitle',
-            alignment: 'right',
-            margin: [0, 10, 10, 0],
-          },
-          {
-            width: 80,
-            text: expedienteData.value.date_end ? formatDate(expedienteData.value.date_end, false) : '------',
-            style: 'headerTitle',
-            alignment: 'left',
-            margin: [0, 10, 10, 0],
-          },
-        ],
-      },
-    ],
-    styles: {
-      header: {
-        fontSize: 18,
-        bold: true,
-        margin: [0, 0, 0, 10],
-      },
-      subheader: {
-        fontSize: 14,
-        bold: true,
-        margin: [0, 10, 0, 5],
-      },
-      headerTitle: {
-        fontSize: 12,
-        bold: true,
-      },
-      headerSubtitle: {
-        fontSize: 12,
-        // italics: true,
-      },
-      headerSectionTitle: {
-        fontSize: 12,
-        bold: true,
-        decoration: 'underline',
-        margin: [0, 5, 0, 5],
-      },
-      headerInfo: {
-        fontSize: 8,
-      },
-      /* header: {
-        fontSize: 16,
-        bold: true,
-      }, */
-      footer: {
-        fontSize: 10,
-        marginTop: 5,
-      },
-      headerBody: {
-        fillColor: '#CCCCCC',
-        fontSize: 10,
-        bold: true,
-        margin: [0, 0, 0, 0],
-        alignment: 'center',
-      },
-      body: {
-        color: '#000000',
-        fontSize: 10,
-      },
-      tableCell: {
-        fontSize: 9,
-        margin: [2, 2, 2, 2],
-      },
-    },
-  } as any
-  const pdf = pdfMake.createPdf(docDefinition)
-  pdf.open()
 }
 
 // ---------------------------------- Descargar archivo full -----------------------------
@@ -389,9 +143,9 @@ onMounted(async () => {
     ]"
   />
 
-  <div class="columns is-multiline">
+  <div v-if="!params.id" class="columns is-multiline">
     <!--Card-->
-    <div v-if="!params.id" class="column is-12">
+    <div class="column is-12">
       <VCard radius="regular">
         <div class="column is-6">
           <VField
@@ -419,6 +173,8 @@ onMounted(async () => {
         </div>
       </VCard>
     </div>
+  </div>
+  <div v-else class="columns is-multiline">
     <div class="column is-4">
       <VCard radius="regular">
         <h3 class="title is-5 mb-2">
@@ -487,9 +243,10 @@ onMounted(async () => {
                 v-tooltip="'Agragar movimiento al Expediente'"
                 color="primary"
                 icon="lucide:plus"
+                @click.prevent="addMov"
               />
             </VButtons>
-            <FlexTableDropdown @projects="generateAndOpenPDF" />
+            <FlexTableDropdown @view="openFile('storage/'+expedienteData.path_file_portada)" />
           </div>
         </VCard>
       </div>

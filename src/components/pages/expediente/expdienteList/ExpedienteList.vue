@@ -30,7 +30,7 @@ const columns = [
   { data: 'departamento.name', title: 'Dependencia Origen.', typeSearch: 'input' },
   { data: 'name', title: 'Titulo/Asunto', typeSearch: 'input' },
   { data: 'recurrente', title: 'Recurrente', typeSearch: 'input' },
-  { data: 'type_file.name', title: 'Tipo de Documento', typeSearch: 'input', visible: false },
+  { data: 'type_file.name', title: 'Tipo de Documento', typeSearch: 'input', searchable: false, visible: false },
   { data: 'deleted_at', title: 'Tipo de Movimiento', typeSearch: 'input' },
   { data: 'deleted_at', title: 'Fecha de Movimiento', typeSearch: 'input' },
   { data: 'deleted_at', title: 'Dependencia Destino', typeSearch: 'input', visible: false },

@@ -58,7 +58,16 @@ async function onLogin(values: any) {
       notify.success(`${t('auth.logged-in')}, ${userSession.user!.name}`)
     }
     catch (err: any) {
-      catchFieldError(err, setFieldError)
+      // catchFieldError(err, setFieldError)
+      if (err && err.response && err.response._data && err.response._data.errors) {
+        const errors = err.response._data.errors
+        for (const key in errors) {
+          if (Object.prototype.hasOwnProperty.call(errors, key)) {
+            const errorMessage = errors[key][0]
+            setFieldError(key, errorMessage)
+          }
+        }
+      }
       notify.error(useLaravelError(err))
     }
     finally {

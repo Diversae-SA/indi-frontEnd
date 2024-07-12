@@ -119,7 +119,7 @@ useHead(() => ({
     },
   ],
   htmlAttrs: {
-    lang: locale.value,
+    lang: 'es', // locale.value,
     dir: rtlCodes.includes(locale.value) ? 'rtl' : 'ltr',
   },
 }))

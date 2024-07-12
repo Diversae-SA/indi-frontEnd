@@ -5,14 +5,19 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { string, boolean, number, z as zod, array } from 'zod'
 import { useI18n } from 'vue-i18n'
 import { useFetch } from '/@src/composable/useFetch'
+import { useSubmitHandler } from '/@src/composable/useSubmitHandler'
 
 const { t } = useI18n()
 const $fetch = useFetch()
+const { submitHandler } = useSubmitHandler()
 const userSession = useUserSession()
 
 const selectedFile = ref<File | null>(null)
 const imageDimensions = ref()
 const currentImageUrl = ref('')
+const editable = ref(true)
+const isOpenStore = ref(false)
+const smallFormOpen = ref(false)
 
 // TODO - calcular la dimension se repite, verificar y limpiar el codigo
 const onFileSelect = (event: Event): void => {
@@ -60,21 +65,52 @@ function formattedNumber(valueNumber: string | null | undefined): string {
   return new Intl.NumberFormat('es-ES', { minimumFractionDigits: 0 }).format(numberValue)
 }
 
+function activeEdit() {
+  editable.value = !editable.value
+}
+
 const validationSchema = toTypedSchema(
   zod.object({
-    people_id: number({ required_error: 'Seleccione un funcionario' }),
-    name: string({
+    nickname: string({
       required_error: 'Nombre de usuario no puede estar vacio',
     }).min(3, { message: 'El nombre debe contener como mínimo 3 letras' }),
-    email: string({
+    emailUser: string({
       required_error: t('auth.errors.email.required'),
     }).email(t('auth.errors.email.format')),
     profile_path: string().nullish(),
-    roles: array(number()).nullish(),
-    active: boolean().nullish(),
-  }),
+    ...(!smallFormOpen.value
+      ? {
+          password_old: string({
+            required_error: t('auth.errors.password.required'),
+          }).min(8, t('auth.errors.password.length')),
+          password: string({
+            required_error: t('auth.errors.password.required'),
+          })
+            .min(8, t('auth.errors.password.length')),
+          password_confirmation: string({
+            required_error: t('auth.errors.passwordCheck.match'),
+          }),
+        }
+      : {
+          password: string().nullish(),
+        }
+    ),
+  })
+    .refine((data) => {
+      if (data.password) {
+        return data.password === data.password_confirmation
+      }
+      /* else if (!smallFormOpen.value) {
+        return data.password === data.password_confirmation
+      } */
+      return true
+    }, {
+      message: t('auth.errors.passwordCheck.match'),
+      path: ['password_confirmation'],
+    }),
 )
 interface userForm {
+  id: number
   profile_path: string | null
   ci: string
   name: string
@@ -85,7 +121,15 @@ interface userForm {
   address: string
   email: string
   phone: string
+  department: string
+  district: string
+  nickname: string
+  emailUser: string
+  password_old: string
   password: string
+  password_confirmation: string
+  departamento: string
+  departamentos: []
   roles: []
   active: boolean
 }
@@ -93,10 +137,28 @@ const { values, handleSubmit, isSubmitting, setFieldError, setFieldValue, setVal
   validationSchema,
 })
 
+const onSubmit = handleSubmit(async () => {
+  const formData = new FormData()
+  formData.append('_method', 'PUT')
+  formData.append(`image`, selectedFile.value ?? 'null')
+  formData.append('data', JSON.stringify(values))
+  await submitHandler('updateProfile', formData, values.id, true, setFieldError, '/profile')
+  editable.value = true
+  isOpenStore.value = false
+})
+
+const onSubmitPassword = handleSubmit(async () => {
+  const result = await submitHandler('updatePassword', values, values.id, false, setFieldError, '/profile')
+  if (result) {
+    smallFormOpen.value = false
+  }
+})
+
 onMounted(async () => {
   try {
     await $fetch('getProfile').then(function (res) {
       setValues({
+        id: res.id,
         ci: formattedNumber(res.ci),
         name: res.name,
         last_name: res.last_name,
@@ -106,9 +168,17 @@ onMounted(async () => {
         address: res.address,
         email: res.email,
         phone: res.phone,
+        department: res.district.department.name,
+        district: res.district.name,
+        departamento: res.functionary.departamento.name,
+        departamentos: res.departamentos,
+        roles: res.user.roles,
+        nickname: res.user.name,
+        profile_path: res.user.profile_path,
+        emailUser: res.user.email,
       })
-      if (res.profile_path) {
-        currentImageUrl.value = import.meta.env.VITE_API_BASE_URL + '/storage/' + res.profile_path
+      if (res.user.profile_path) {
+        currentImageUrl.value = import.meta.env.VITE_API_BASE_URL + '/storage/' + res.user.profile_path
         const img = new Image()
         img.onload = () => {
           const width = img.width
@@ -157,7 +227,7 @@ onMounted(async () => {
                   ]"
                 />
                 <VField
-                  v-if="!currentImageUrl"
+                  v-if="!currentImageUrl && !editable"
                   grouped
                 >
                   <VControl>
@@ -182,6 +252,7 @@ onMounted(async () => {
                 </VField>
                 <VIconButton
                   v-else
+                  v-show="!editable"
                   color="danger"
                   light
                   raised
@@ -196,14 +267,30 @@ onMounted(async () => {
                     <h4>Datos Generales</h4>
                   </div>
                   <div class="section-content">
-                    <p class="description">Nro CI: <span>{{ values.ci }}</span></p>
-                    <p class="description">Nombre: <span>{{ values.name }}</span></p>
-                    <p class="description">Apellido: <span>{{ values.last_name }}</span></p>
-                    <p class="description">Fecha de Nacimiento: <span>{{ values.date_birth }}</span></p>
-                    <p class="description">Sexo: <span>{{ values.gender }}</span></p>
-                    <p class="description">Nacionalidad: <span>{{ values.nationality }}</span></p>
-                    <p class="description">Departamento: <span>{{ values.department }}</span></p>
-                    <p class="description">Distrito: <span>{{ values.district }}</span></p>
+                    <p class="description">
+                      Nro CI: <span>{{ values.ci }}</span>
+                    </p>
+                    <p class="description">
+                      Nombre: <span>{{ values.name }}</span>
+                    </p>
+                    <p class="description">
+                      Apellido: <span>{{ values.last_name }}</span>
+                    </p>
+                    <p class="description">
+                      Fecha de Nacimiento: <span>{{ values.date_birth }}</span>
+                    </p>
+                    <p class="description">
+                      Sexo: <span>{{ values.gender }}</span>
+                    </p>
+                    <p class="description">
+                      Nacionalidad: <span>{{ values.nationality }}</span>
+                    </p>
+                    <p class="description">
+                      Departamento: <span>{{ values.department }}</span>
+                    </p>
+                    <p class="description">
+                      Distrito: <span>{{ values.district }}</span>
+                    </p>
                   </div>
                 </div>
               </div>
@@ -212,12 +299,55 @@ onMounted(async () => {
               <div class="section-title">
                 <h4>Datos Editables</h4>
                 <i
+                  v-if="editable"
                   aria-hidden="true"
-                  class="lnil lnil-pencil"
+                  class="lnil lnil-pencil btn-ico"
+                  @click.prevent="activeEdit"
+                />
+                <i
+                  v-else
+                  aria-hidden="true"
+                  class="lnil lnil-save btn-ico"
+                  @click="isOpenStore = true"
                 />
               </div>
               <div class="section-content">
-                <!-- -------------- Address ------------------------------------------- -->
+                <!-- -------------- Nickname ----------------------------------------- -->
+                <VField
+                  id="nickname"
+                  label="Nombre de Usuario"
+                >
+                  <VControl icon="feather:user">
+                    <VInput
+                      type="text"
+                      class="input"
+                      :disabled="isSubmitting || editable"
+                    />
+                    <ErrorMessage
+                      class="help is-danger"
+                      name="nickname"
+                    />
+                  </VControl>
+                </VField>
+                <!-- -------------- Email User --------------------------------------- -->
+                <VField
+                  id="emailUser"
+                  label="Correo Electrónico de Acceso"
+                >
+                  <VControl icon="feather:mail">
+                    <VInput
+                      type="email"
+                      class="input"
+                      autocomplete="email"
+                      :disabled="isSubmitting || editable"
+                    />
+                    <ErrorMessage
+                      class="help is-danger"
+                      name="emailUser"
+                    />
+                  </VControl>
+                </VField>
+                <!-- -------------- Address ------------------------------------------ -->
                 <VField
                   id="address"
                   label="Dirección"
@@ -226,7 +356,7 @@ onMounted(async () => {
                     <VInput
                       type="text"
                       class="input"
-                      :disabled="isSubmitting"
+                      :disabled="isSubmitting || editable"
                     />
                     <ErrorMessage
                       class="help is-danger"
@@ -234,7 +364,7 @@ onMounted(async () => {
                     />
                   </VControl>
                 </VField>
-                <!-- -------------- Email ------------------------------------------- -->
+                <!-- -------------- Email -------------------------------------------- -->
                 <VField
                   id="email"
                   label="Correo Electrónico Personal"
@@ -244,7 +374,7 @@ onMounted(async () => {
                       type="email"
                       class="input"
                       autocomplete="email"
-                      :disabled="isSubmitting"
+                      :disabled="isSubmitting || editable"
                     />
                     <ErrorMessage
                       class="help is-danger"
@@ -252,7 +382,7 @@ onMounted(async () => {
                     />
                   </VControl>
                 </VField>
-                <!-- -------------- Phone ------------------------------------------- -->
+                <!-- -------------- Phone -------------------------------------------- -->
                 <VField
                   id="phone"
                   label="Número de Celular"
@@ -262,7 +392,7 @@ onMounted(async () => {
                       type="text"
                       class="input"
                       autocomplete="phone"
-                      :disabled="isSubmitting"
+                      :disabled="isSubmitting || editable"
                     />
                   </VControl>
                 </VField>
@@ -270,533 +400,156 @@ onMounted(async () => {
             </div>
             <div class="profile-card-section">
               <div class="section-title">
-                <h4>Languages</h4>
-                <RouterLink to="/sidebar/layouts/profile-edit-skills">
-                  <i
-                    aria-hidden="true"
-                    class="lnil lnil-pencil"
-                  />
-                </RouterLink>
+                <h4>Cambiar de Contraseña</h4>
+                <i
+                  aria-hidden="true"
+                  class="lnil lnil-pencil btn-ico"
+                  @click.prevent="smallFormOpen = true"
+                />
               </div>
-<!--              <div class="section-content">-->
-<!--                <div class="languages-wrapper">-->
-<!--                  <div class="languages-item">-->
-<!--                    <VIconWrap picture="/images/icons/flags/united-states-of-america.svg">-->
-<!--                      <template #after>-->
-<!--                        <VPeity-->
-<!--                          type="donut"-->
-<!--                          :values="[100, 100]"-->
-<!--                          :fill="['var(&#45;&#45;primary)', 'transparent']"-->
-<!--                          :height="50"-->
-<!--                          :inner-radius="22"-->
-<!--                          :radius="8"-->
-<!--                          :width="50"-->
-<!--                        />-->
-<!--                      </template>-->
-<!--                    </VIconWrap>-->
-
-<!--                    <div class="meta">-->
-<!--                      <span class="dark-inverted">English</span>-->
-<!--                      <span>Native Speaker, fluent</span>-->
-<!--                    </div>-->
-<!--                  </div>-->
-<!--                  <div class="languages-item">-->
-<!--                    <VIconWrap picture="/images/icons/flags/france.svg">-->
-<!--                      <template #after>-->
-<!--                        <VPeity-->
-<!--                          type="donut"-->
-<!--                          :values="[80, 100]"-->
-<!--                          :fill="['var(&#45;&#45;primary)', 'transparent']"-->
-<!--                          :height="50"-->
-<!--                          :inner-radius="22"-->
-<!--                          :width="50"-->
-<!--                        />-->
-<!--                      </template>-->
-<!--                    </VIconWrap>-->
-
-<!--                    <div class="meta">-->
-<!--                      <span class="dark-inverted">French</span>-->
-<!--                      <span>Fluent, written and spoken</span>-->
-<!--                    </div>-->
-<!--                  </div>-->
-<!--                  <div class="languages-item">-->
-<!--                    <VIconWrap picture="/images/icons/flags/germany.svg">-->
-<!--                      <template #after>-->
-<!--                        <VPeity-->
-<!--                          type="donut"-->
-<!--                          :values="[30, 100]"-->
-<!--                          :fill="['var(&#45;&#45;primary)', 'transparent']"-->
-<!--                          :height="50"-->
-<!--                          :inner-radius="22"-->
-<!--                          :width="50"-->
-<!--                        />-->
-<!--                      </template>-->
-<!--                    </VIconWrap>-->
-
-<!--                    <div class="meta">-->
-<!--                      <span class="dark-inverted">German</span>-->
-<!--                      <span>Beginner level</span>-->
-<!--                    </div>-->
-<!--                  </div>-->
-<!--                  <div class="languages-item">-->
-<!--                    <VIconWrap picture="/images/icons/flags/spain.svg">-->
-<!--                      <template #after>-->
-<!--                        <VPeity-->
-<!--                          type="donut"-->
-<!--                          :values="[40, 100]"-->
-<!--                          :fill="['var(&#45;&#45;primary)', 'transparent']"-->
-<!--                          :height="50"-->
-<!--                          :inner-radius="22"-->
-<!--                          :width="50"-->
-<!--                        />-->
-<!--                      </template>-->
-<!--                    </VIconWrap>-->
-
-<!--                    <div class="meta">-->
-<!--                      <span class="dark-inverted">Spanish</span>-->
-<!--                      <span>Beginner level</span>-->
-<!--                    </div>-->
-<!--                  </div>-->
-<!--                </div>-->
-<!--              </div>-->
             </div>
-
-            <!--Skills-->
-<!--            <div class="profile-card-section">-->
-<!--              <div class="section-title">-->
-<!--                <h4>Skills</h4>-->
-<!--                <RouterLink to="/sidebar/layouts/profile-edit-skills">-->
-<!--                  <i-->
-<!--                    aria-hidden="true"-->
-<!--                    class="lnil lnil-pencil"-->
-<!--                  />-->
-<!--                </RouterLink>-->
-<!--              </div>-->
-<!--              <div class="section-content">-->
-<!--                <div class="skills-wrapper">-->
-<!--                  &lt;!&ndash;Skill&ndash;&gt;-->
-<!--                  <div class="skills-item">-->
-<!--                    <VIconWrap picture="/images/icons/stacks/js.svg" />-->
-
-<!--                    <div class="skill-info">-->
-<!--                      <span class="dark-inverted">Javascript</span>-->
-<!--                      <span>7 years of experience</span>-->
-<!--                    </div>-->
-<!--                    <div class="people">-->
-<!--                      <VAvatar-->
-<!--                        size="small"-->
-<!--                        initials="BT"-->
-<!--                        color="warning"-->
-<!--                      />-->
-<!--                      <VAvatar-->
-<!--                        size="small"-->
-<!--                        picture="/demo/avatars/18.jpg"-->
-<!--                      />-->
-<!--                      <VAvatar-->
-<!--                        size="small"-->
-<!--                        initials="JD"-->
-<!--                        color="info"-->
-<!--                      />-->
-<!--                      <VAvatar-->
-<!--                        size="small"-->
-<!--                        picture="/demo/avatars/7.jpg"-->
-<!--                      />-->
-<!--                      <VAvatar-->
-<!--                        size="small"-->
-<!--                        initials="38"-->
-<!--                      />-->
-<!--                    </div>-->
-<!--                  </div>-->
-
-<!--                  &lt;!&ndash;Skill&ndash;&gt;-->
-<!--                  <div class="skills-item">-->
-<!--                    <VIconWrap-->
-<!--                      icon="lnil lnil-burger-alt"-->
-<!--                      placeholder-->
-<!--                    />-->
-
-<!--                    <div class="skill-info">-->
-<!--                      <span class="dark-inverted">Product Management</span>-->
-<!--                      <span>4 years of experience</span>-->
-<!--                    </div>-->
-<!--                    <div class="people">-->
-<!--                      <VAvatar-->
-<!--                        size="small"-->
-<!--                        picture="/demo/avatars/21.jpg"-->
-<!--                      />-->
-<!--                      <VAvatar-->
-<!--                        size="small"-->
-<!--                        initials="AT"-->
-<!--                        color="success"-->
-<!--                      />-->
-<!--                      <VAvatar-->
-<!--                        size="small"-->
-<!--                        picture="/demo/avatars/39.jpg"-->
-<!--                      />-->
-<!--                      <VAvatar-->
-<!--                        size="small"-->
-<!--                        picture="/demo/avatars/23.jpg"-->
-<!--                      />-->
-<!--                      <VAvatar-->
-<!--                        size="small"-->
-<!--                        initials="27"-->
-<!--                      />-->
-<!--                    </div>-->
-<!--                  </div>-->
-
-<!--                  &lt;!&ndash;Skill&ndash;&gt;-->
-<!--                  <div class="skills-item">-->
-<!--                    <VIconWrap picture="/images/icons/stacks/html5.svg" />-->
-
-<!--                    <div class="skill-info">-->
-<!--                      <span class="dark-inverted">Html 5</span>-->
-<!--                      <span>10+ years of experience</span>-->
-<!--                    </div>-->
-<!--                    <div class="people">-->
-<!--                      <VAvatar-->
-<!--                        size="small"-->
-<!--                        picture="/demo/avatars/38.jpg"-->
-<!--                      />-->
-<!--                      <VAvatar-->
-<!--                        size="small"-->
-<!--                        picture="/demo/avatars/11.jpg"-->
-<!--                      />-->
-<!--                      <VAvatar-->
-<!--                        size="small"-->
-<!--                        initials="SC"-->
-<!--                        color="h-purple"-->
-<!--                      />-->
-<!--                      <VAvatar-->
-<!--                        size="small"-->
-<!--                        picture="/demo/avatars/13.jpg"-->
-<!--                      />-->
-<!--                      <VAvatar-->
-<!--                        size="small"-->
-<!--                        initials="19"-->
-<!--                      />-->
-<!--                    </div>-->
-<!--                  </div>-->
-
-<!--                  &lt;!&ndash;Skill&ndash;&gt;-->
-<!--                  <div class="skills-item">-->
-<!--                    <VIconWrap picture="/images/icons/stacks/css3.svg" />-->
-
-<!--                    <div class="skill-info">-->
-<!--                      <span class="dark-inverted">CSS 3</span>-->
-<!--                      <span>10+ years of experience</span>-->
-<!--                    </div>-->
-<!--                    <div class="people">-->
-<!--                      <VAvatar-->
-<!--                        size="small"-->
-<!--                        picture="/demo/avatars/21.jpg"-->
-<!--                      />-->
-<!--                      <VAvatar-->
-<!--                        size="small"-->
-<!--                        initials="SC"-->
-<!--                        color="h-purple"-->
-<!--                      />-->
-<!--                      <VAvatar-->
-<!--                        size="small"-->
-<!--                        picture="/demo/avatars/5.jpg"-->
-<!--                      />-->
-<!--                      <VAvatar-->
-<!--                        size="small"-->
-<!--                        picture="/demo/avatars/7.jpg"-->
-<!--                      />-->
-<!--                      <VAvatar-->
-<!--                        size="small"-->
-<!--                        initials="31"-->
-<!--                      />-->
-<!--                    </div>-->
-<!--                  </div>-->
-<!--                </div>-->
-
-<!--                <div class="more-button has-text-centered">-->
-<!--                  <VButton light>-->
-<!--                    View More-->
-<!--                  </VButton>-->
-<!--                </div>-->
-<!--              </div>-->
-<!--            </div>-->
           </div>
-
-          <!--Recommendations-->
-<!--          <div class="profile-card">-->
-<!--            <div class="profile-card-section no-padding">-->
-<!--              <div class="section-title">-->
-<!--                <h4>Recommendations</h4>-->
-<!--                <a><i-->
-<!--                  aria-hidden="true"-->
-<!--                  class="lnil lnil-pencil"-->
-<!--                /></a>-->
-<!--                <a-->
-<!--                  class="action-link"-->
-<!--                  tabindex="0"-->
-<!--                >View All</a>-->
-<!--              </div>-->
-<!--              <div class="section-content">-->
-<!--                <div class="recommendations-wrapper">-->
-<!--                  &lt;!&ndash;Recommendation&ndash;&gt;-->
-<!--                  <div class="recommendations-item">-->
-<!--                    <VAvatar-->
-<!--                      size="large"-->
-<!--                      picture="/demo/avatars/5.jpg"-->
-<!--                      badge="/images/icons/flags/united-states-of-america.svg"-->
-<!--                    />-->
-<!--                    <h3 class="dark-inverted">-->
-<!--                      Project Manager-->
-<!--                    </h3>-->
-<!--                    <p>-->
-<!--                      Lorem ipsum dolor sit amet, consectetur adipiscing elit. At multis-->
-<!--                      malis affectus. Certe, nisi voluptatem tanti aestimaretis.-->
-<!--                    </p>-->
-<!--                    <div class="meta">-->
-<!--                      <span>Mary L.</span>-->
-<!--                      <span>September 3, 2020</span>-->
-<!--                    </div>-->
-<!--                  </div>-->
-
-<!--                  &lt;!&ndash;Recommendation&ndash;&gt;-->
-<!--                  <div class="recommendations-item">-->
-<!--                    <VAvatar-->
-<!--                      size="large"-->
-<!--                      picture="/demo/avatars/18.jpg"-->
-<!--                      badge="/images/icons/flags/united-states-of-america.svg"-->
-<!--                    />-->
-
-<!--                    <h3 class="dark-inverted">-->
-<!--                      UI/UX Designer-->
-<!--                    </h3>-->
-<!--                    <p>-->
-<!--                      Lorem ipsum dolor sit amet, consectetur adipiscing elit. At multis-->
-<!--                      malis affectus. Certe, nisi voluptatem tanti aestimaretis.-->
-<!--                    </p>-->
-<!--                    <div class="meta">-->
-<!--                      <span>Esteban C.</span>-->
-<!--                      <span>September 9, 2020</span>-->
-<!--                    </div>-->
-<!--                  </div>-->
-<!--                </div>-->
-<!--              </div>-->
-<!--            </div>-->
-<!--          </div>-->
         </div>
         <div class="column is-4">
           <!--Notifications-->
-<!--          <div class="profile-card">-->
-<!--            <div class="profile-card-section no-padding">-->
-<!--              <div class="section-title">-->
-<!--                <h4>Notifications</h4>-->
-<!--                <VControl>-->
-<!--                  <VSwitchBlock-->
-<!--                    color="success"-->
-<!--                    checked-->
-<!--                  />-->
-<!--                </VControl>-->
-<!--              </div>-->
-<!--              <div class="section-content">-->
-<!--                <div class="network-notifications">-->
-<!--                  <h3 class="dark-inverted">-->
-<!--                    Notify Your Network?-->
-<!--                  </h3>-->
-<!--                  <p>-->
-<!--                    Enable or disable this setting to manage if your network should be-->
-<!--                    notified when you make changes to your profile.-->
-<!--                  </p>-->
-<!--                </div>-->
-<!--              </div>-->
-<!--            </div>-->
-<!--          </div>-->
+          <div class="profile-card">
+            <div class="profile-card-section no-padding">
+              <div class="section-title">
+                <h4>Dependencia/Departamento</h4>
+              </div>
+              <div class="section-content">
+                <div class="network-notifications">
+                  <h3 class="dark-inverted">
+                    - {{ values.departamento }}
+                  </h3>
+                  <p v-for="department in values.departamentos" :key="department">
+                    - {{ department.name }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
 
           <!--Tools-->
-<!--          <div class="profile-card">-->
-<!--            <div class="profile-card-section no-padding">-->
-<!--              <div class="section-title">-->
-<!--                <h4>Tools</h4>-->
-<!--                <RouterLink to="/sidebar/layouts/profile-edit-skills">-->
-<!--                  <i-->
-<!--                    aria-hidden="true"-->
-<!--                    class="lnil lnil-pencil"-->
-<!--                  />-->
-<!--                </RouterLink>-->
-<!--                <a-->
-<!--                  class="action-link"-->
-<!--                  tabindex="0"-->
-<!--                >View All</a>-->
-<!--              </div>-->
-<!--              <div class="section-content">-->
-<!--                <div class="tools-wrapper">-->
-<!--                  &lt;!&ndash;Tool&ndash;&gt;-->
-<!--                  <div class="tools-item">-->
-<!--                    <VIconWrap picture="/images/icons/stacks/illustrator.svg">-->
-<!--                      <template #after>-->
-<!--                        <VPeity-->
-<!--                          type="pie"-->
-<!--                          :values="[80, 100]"-->
-<!--                          :fill="['var(&#45;&#45;primary)', 'transparent']"-->
-<!--                          :height="50"-->
-<!--                          :inner-radius="22"-->
-<!--                          :width="50"-->
-<!--                        />-->
-<!--                      </template>-->
-<!--                    </VIconWrap>-->
-
-<!--                    <div class="meta">-->
-<!--                      <span class="dark-inverted">Adobe Illustrator</span>-->
-<!--                      <span>Advanced level</span>-->
-<!--                    </div>-->
-<!--                  </div>-->
-
-<!--                  &lt;!&ndash;Tool&ndash;&gt;-->
-<!--                  <div class="tools-item">-->
-<!--                    <VIconWrap picture="/demo/photos/brands/jira.svg">-->
-<!--                      <template #after>-->
-<!--                        <VPeity-->
-<!--                          type="pie"-->
-<!--                          :values="[60, 100]"-->
-<!--                          :fill="['var(&#45;&#45;primary)', 'transparent']"-->
-<!--                          :height="50"-->
-<!--                          :inner-radius="22"-->
-<!--                          :width="50"-->
-<!--                        />-->
-<!--                      </template>-->
-<!--                    </VIconWrap>-->
-
-<!--                    <div class="meta">-->
-<!--                      <span class="dark-inverted">Jira Software</span>-->
-<!--                      <span>Intermediate level</span>-->
-<!--                    </div>-->
-<!--                  </div>-->
-
-<!--                  &lt;!&ndash;Tool&ndash;&gt;-->
-<!--                  <div class="tools-item">-->
-<!--                    <VIconWrap picture="/demo/photos/brands/office.svg">-->
-<!--                      <template #after>-->
-<!--                        <VPeity-->
-<!--                          type="pie"-->
-<!--                          :values="[95, 100]"-->
-<!--                          :fill="['var(&#45;&#45;primary)', 'transparent']"-->
-<!--                          :height="50"-->
-<!--                          :inner-radius="22"-->
-<!--                          :width="50"-->
-<!--                        />-->
-<!--                      </template>-->
-<!--                    </VIconWrap>-->
-
-<!--                    <div class="meta">-->
-<!--                      <span class="dark-inverted">MS Office</span>-->
-<!--                      <span>Expert level</span>-->
-<!--                    </div>-->
-<!--                  </div>-->
-<!--                </div>-->
-<!--              </div>-->
-<!--            </div>-->
-<!--          </div>-->
-
-          <!--Recent Views-->
-<!--          <div class="profile-card">-->
-<!--            <div class="profile-card-section no-padding">-->
-<!--              <div class="section-title">-->
-<!--                <h4>Recent Views</h4>-->
-<!--                <a-->
-<!--                  class="action-link"-->
-<!--                  tabindex="0"-->
-<!--                >View All</a>-->
-<!--              </div>-->
-<!--              <div class="section-content">-->
-<!--                <div class="people-wrapper">-->
-<!--                  &lt;!&ndash;People&ndash;&gt;-->
-<!--                  <a-->
-<!--                    href="#"-->
-<!--                    class="people-item"-->
-<!--                  >-->
-<!--                    <VAvatar-->
-<!--                      picture="/demo/avatars/25.jpg"-->
-<!--                      badge="/images/icons/stacks/js.svg"-->
-<!--                    />-->
-
-<!--                    <div class="meta">-->
-<!--                      <span class="dark-inverted">Melany W.</span>-->
-<!--                      <span>Web Developer</span>-->
-<!--                    </div>-->
-<!--                  </a>-->
-
-<!--                  &lt;!&ndash;People&ndash;&gt;-->
-<!--                  <a-->
-<!--                    href="#"-->
-<!--                    class="people-item"-->
-<!--                  >-->
-<!--                    <VAvatar-->
-<!--                      picture="/demo/avatars/29.jpg"-->
-<!--                      badge="/images/icons/stacks/python.svg"-->
-<!--                    />-->
-
-<!--                    <div class="meta">-->
-<!--                      <span class="dark-inverted">Hakeem C.</span>-->
-<!--                      <span>Web Developer</span>-->
-<!--                    </div>-->
-<!--                  </a>-->
-
-<!--                  &lt;!&ndash;People&ndash;&gt;-->
-<!--                  <a-->
-<!--                    href="#"-->
-<!--                    class="people-item"-->
-<!--                  >-->
-<!--                    <VAvatar-->
-<!--                      picture="/demo/avatars/38.jpg"-->
-<!--                      badge="/images/icons/stacks/vuejs.svg"-->
-<!--                    />-->
-
-<!--                    <div class="meta">-->
-<!--                      <span class="dark-inverted">Christie D.</span>-->
-<!--                      <span>Web Developer</span>-->
-<!--                    </div>-->
-<!--                  </a>-->
-
-<!--                  &lt;!&ndash;People&ndash;&gt;-->
-<!--                  <a-->
-<!--                    href="#"-->
-<!--                    class="people-item"-->
-<!--                  >-->
-<!--                    <VAvatar-->
-<!--                      picture="/demo/avatars/28.jpg"-->
-<!--                      badge="/images/icons/stacks/angular.svg"-->
-<!--                    />-->
-
-<!--                    <div class="meta">-->
-<!--                      <span class="dark-inverted">Edouard F.</span>-->
-<!--                      <span>Software Engineer</span>-->
-<!--                    </div>-->
-<!--                  </a>-->
-
-<!--                  &lt;!&ndash;People&ndash;&gt;-->
-<!--                  <a-->
-<!--                    href="#"-->
-<!--                    class="people-item"-->
-<!--                  >-->
-<!--                    <VAvatar-->
-<!--                      picture="/demo/avatars/19.jpg"-->
-<!--                      badge="/images/icons/stacks/cplus.svg"-->
-<!--                    />-->
-
-<!--                    <div class="meta">-->
-<!--                      <span class="dark-inverted">Greta K.</span>-->
-<!--                      <span>Sales Manager</span>-->
-<!--                    </div>-->
-<!--                  </a>-->
-<!--                </div>-->
-<!--              </div>-->
-<!--            </div>-->
-<!--          </div>-->
+          <div class="profile-card">
+            <div class="profile-card-section no-padding">
+              <div class="section-title">
+                <h4>Roles</h4>
+              </div>
+              <div class="section-content">
+                <div class="tools-wrapper">
+                  <p v-for="rol in values.roles" :key="rol">
+                    - {{ rol.name }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
+  <VModal
+    :open="isOpenStore"
+    title=""
+    size="small"
+    actions="center"
+    noscroll
+    noclose
+    @close="isOpenStore = false"
+  >
+    <template #content>
+      <VPlaceholderSection
+        title="Guardar Cambios"
+        subtitle="Estas seguro/a de guardar los nuevos cambios?"
+      />
+    </template>
+    <template #action>
+      <VButton
+        color="primary"
+        raised
+        @click.prevent="onSubmit"
+      >
+        Guardar
+      </VButton>
+    </template>
+  </VModal>
+  <VModal
+    is="form"
+    :open="smallFormOpen"
+    title="Cambiar Contraseña"
+    size="small"
+    actions="right"
+    noclose
+    @submit.prevent="smallFormOpen = false"
+    @close="smallFormOpen = false"
+  >
+    <template #content>
+      <div class="modal-form">
+        <!-- --------------- Contraseña Actual ---------------------- -->
+        <VField id="password_old" label="Contraseña Actual">
+          <VControl icon="feather:lock">
+            <VInput
+              type="password"
+              class="input"
+              :disabled="isSubmitting"
+            />
+            <ErrorMessage
+              class="help is-danger"
+              name="password_old"
+            />
+          </VControl>
+        </VField>
+        <!-- --------------- Contraseña Nueva ---------------------- -->
+        <VField id="password" label="Contraseña nueva">
+          <VControl icon="feather:lock">
+            <VInput
+              type="password"
+              class="input"
+              :disabled="isSubmitting"
+            />
+            <ErrorMessage
+              class="help is-danger"
+              name="password"
+            />
+          </VControl>
+        </VField>
+        <!-- --------------- Contraseña Confirmar ---------------------- -->
+        <VField id="password_confirmation" label="Repite la Contraseña Nueva">
+          <VControl icon="feather:lock">
+            <VInput
+              type="password"
+              class="input"
+              :disabled="isSubmitting"
+            />
+            <ErrorMessage
+              class="help is-danger"
+              name="password_confirmation"
+            />
+          </VControl>
+        </VField>
+      </div>
+    </template>
+    <template #action>
+      <VButton
+        type="submit"
+        color="primary"
+        raised
+        @click.prevent="onSubmitPassword"
+      >
+        Cambiar
+      </VButton>
+    </template>
+  </VModal>
 </template>
 
 <style lang="scss">
 @import '/src/scss/abstracts/all';
 @import '/src/scss/components/profile-stats';
+
+.btn-ico {
+  cursor: pointer;
+}
 
 .is-navbar {
   .profile-wrapper {

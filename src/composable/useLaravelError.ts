@@ -15,7 +15,7 @@ export const useLaravelError = (err: any) => {
 
       break
     case 422:
-      message = Object.values<string>(err.response.data?.errors)?.flat()?.[0]
+      message = Object.values<string>(err.response._data?.errors)?.flat()?.[0]
 
       break
     case 500:

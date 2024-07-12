@@ -15,7 +15,7 @@ export function useSubmitHandler() {
     formData: boolean,
     setFieldError: (fieldName: any, errorMessage: any) => void,
     routePath: string,
-  ) {
+  ): Promise<boolean> {
     if (!isLoading.value) {
       isLoading.value = true
       try {
@@ -29,10 +29,11 @@ export function useSubmitHandler() {
           notify.success(`Datos Guardados Correctamente!`)
         }
         await router.push({ path: routePath })
+        return true
       }
       catch (err: any) {
-        if (err && err.response && err.response.data && err.response.data.errors) {
-          const errors = err.response.data.errors
+        if (err && err.response && err.response._data && err.response._data.errors) {
+          const errors = err.response._data.errors
           for (const key in errors) {
             if (Object.prototype.hasOwnProperty.call(errors, key)) {
               const errorMessage = errors[key][0]
@@ -41,11 +42,13 @@ export function useSubmitHandler() {
           }
         }
         notify.error('Error al guardar los datos')
+        return false
       }
       finally {
         isLoading.value = false
       }
     }
+    return false
   }
 
   async function deleteHandler(endpoint: string, id: number) {

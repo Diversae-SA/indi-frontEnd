@@ -3,7 +3,7 @@ const emits = defineEmits<{
   (e: 'view'): void
   (e: 'projects'): void
   (e: 'schedule'): void
-  (e: 'remove'): void
+  (e: 'comprobante'): void
 }>()
 </script>
 
@@ -21,6 +21,29 @@ const emits = defineEmits<{
         class="dropdown-item is-media"
         @click.prevent="
           () => {
+            emits('comprobante')
+            close()
+          }
+        "
+      >
+        <div class="icon">
+          <i
+            aria-hidden="true"
+            class="lnil lnil-ticket-alt"
+          />
+        </div>
+        <div class="meta">
+          <span>Comprobate</span>
+          <span>Comprobante del Expediente</span>
+        </div>
+      </a>
+      <hr class="dropdown-divider">
+      <a
+        role="menuitem"
+        href="#"
+        class="dropdown-item is-media"
+        @click.prevent="
+          () => {
             emits('view')
             close()
           }
@@ -29,12 +52,12 @@ const emits = defineEmits<{
         <div class="icon">
           <i
             aria-hidden="true"
-            class="lnil lnil-eye"
+            class="lnil lnil-page"
           />
         </div>
         <div class="meta">
-          <span>View</span>
-          <span>View user details</span>
+          <span>Portada/Caratula</span>
+          <span>Visualizar la portada/caratula del expediente</span>
         </div>
       </a>
 
@@ -52,12 +75,12 @@ const emits = defineEmits<{
         <div class="icon">
           <i
             aria-hidden="true"
-            class="lnil lnil-briefcase"
+            class="lnil lnil-book-alt"
           />
         </div>
         <div class="meta">
-          <span>Projects</span>
-          <span>View user projects</span>
+          <span>Resumen del Expediente</span>
+          <span>Datos basicos del expediente</span>
         </div>
       </a>
 
@@ -75,37 +98,12 @@ const emits = defineEmits<{
         <div class="icon">
           <i
             aria-hidden="true"
-            class="lnil lnil-calendar"
+            class="lnil lnil-books-alt"
           />
         </div>
         <div class="meta">
-          <span>Schedule</span>
-          <span>Schedule a mting</span>
-        </div>
-      </a>
-
-      <hr class="dropdown-divider">
-
-      <a
-        role="menuitem"
-        href="#"
-        class="dropdown-item is-media"
-        @click.prevent="
-          () => {
-            emits('remove')
-            close()
-          }
-        "
-      >
-        <div class="icon">
-          <i
-            aria-hidden="true"
-            class="lnil lnil-trash-can-alt"
-          />
-        </div>
-        <div class="meta">
-          <span>Remove</span>
-          <span>Remove from list</span>
+          <span>Resumen del Expediente (Completo)</span>
+          <span>Todo los datos del expediente</span>
         </div>
       </a>
     </template>

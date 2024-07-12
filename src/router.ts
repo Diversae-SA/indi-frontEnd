@@ -208,7 +208,7 @@ const routes = [
         props: true,
         meta: { permission: 'expedientes create' },
       },
-      // ---------------------------- Lista de Expedientes -----------------
+      // ---------------------------- Detalle de Expedientes -----------------------------
       {
         component: () => import('/@src/pages/expendiente/detailExpediente/expediente-details.vue'),
         path: '/expediente/expediente_details',
@@ -217,13 +217,20 @@ const routes = [
         meta: { permission: 'program expedienteDetails' },
       },
       {
+        component: () => import('/@src/pages/expendiente/detailExpediente/expediente-mov.vue'),
+        path: '/expediente/expediente_mov/:id',
+        name: 'expediente/expediente_mov',
+        props: true,
+        meta: { permission: 'program expedienteDetails' },
+      },
+      // ---------------------------- Movimiento para Expediente -------------------------
+      {
         component: () => import('/@src/pages/expendiente/detailExpediente/expediente-details.vue'),
         path: '/expediente/expediente_details/view/:id',
         name: 'expediente/expediente_details/view',
         props: true,
         meta: { permission: 'program expedienteDetails' },
       },
-
       // --******************************** COMUNIDADES **********************************
 
       // ---------------------------- Datos Adicionales ----------------------------------
@@ -307,6 +314,28 @@ const routes = [
         name: 'communities/update',
         props: true,
         meta: { permission: 'communities edit' },
+      },
+      // ---------------------------- Entregas de Beneficios -----------------------------
+      {
+        component: () => import('/@src/pages/communities/deliveries/deliveries.vue'),
+        path: '/communities/deliveries',
+        name: 'communities/deliveries',
+        props: true,
+        meta: { permission: 'program deliveries' },
+      },
+      {
+        component: () => import('/@src/pages/communities/deliveries/deliveries-cu.vue'),
+        path: '/communities/deliveries/create',
+        name: 'communities/deliveries/create',
+        props: true,
+        meta: { permission: 'deliveries create' },
+      },
+      {
+        component: () => import('/@src/pages/communities/communities/communities-cu.vue'),
+        path: '/communities/deliveries/update/:id',
+        name: 'communities/deliveries/update',
+        props: true,
+        meta: { permission: 'deliveries edit' },
       },
 
       // *********************************** SETTINGS ************************************
