@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useFetch } from '/@src/composable/useFetch'
 import { hasPermission } from '/@src/utils/permissions'
-import { useLaravelError } from '/@src/composable/useLaravelError'
+import { handleError } from '/@src/composable/useLaravelError'
 import { useNotyf } from '/@src/composable/useNotyf'
 import { useI18n } from 'vue-i18n'
 import { toTypedSchema } from '@vee-validate/zod'
@@ -64,7 +64,7 @@ async function onStore() {
     }
     catch (err: any) {
       catchFieldError(err, setFieldError)
-      notify.error(useLaravelError(err))
+      notify.error(handleError(err))
     }
     finally {
       isLoading.value = false
@@ -106,7 +106,7 @@ async function DeletedTraining() {
   }
   catch (err: any) {
     modalDeleted.value = false
-    notify.error(useLaravelError(err))
+    notify.error(handleError(err))
   }
 }
 

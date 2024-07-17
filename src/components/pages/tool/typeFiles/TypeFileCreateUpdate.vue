@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ErrorMessage, useForm, useSetFieldValue } from 'vee-validate'
+import { ErrorMessage, useForm } from 'vee-validate'
 import type { RouteParamValue } from 'vue-router'
 import { catchFieldError } from '/@src/utils/api/catchFieldError'
 import { toTypedSchema } from '@vee-validate/zod'
@@ -71,7 +71,8 @@ watch(
   ([newValue]) => {
     if (newValue) {
       setFieldValue('type_info', 'INTERNO')
-    }else{
+    }
+    else {
       setFieldValue('type_info', null)
     }
   },

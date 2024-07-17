@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useFetch } from '/@src/composable/useFetch'
 import { hasPermission } from '/@src/utils/permissions'
-import { useLaravelError } from '/@src/composable/useLaravelError'
+import { handleError } from '/@src/composable/useLaravelError'
 import { useNotyf } from '/@src/composable/useNotyf'
 
 const $fetch = useFetch()
@@ -101,7 +101,7 @@ async function DeletedTraining() {
   }
   catch (err: any) {
     modalDeleted.value = false
-    notify.error(useLaravelError(err))
+    notify.error(handleError(err))
   }
 }
 

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useApi } from '/@src/composable/useApi'
 import { useNotyf } from '/@src/composable/useNotyf'
-import { formatError } from '/@src/composable/useError'
 import { hasPermission } from '/@src/utils/permissions'
 
 const api = useApi()
