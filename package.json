@@ -106,6 +106,7 @@
     "filepond-plugin-image-transform": "3.8.7",
     "focus-trap": "7.5.4",
     "focus-trap-vue": "4.0.3",
+    "google-map-ts-vue3": "^1.2.1",
     "h3": "1.10.0",
     "highlight.js": "^11.9.0",
     "imask": "7.3.0",

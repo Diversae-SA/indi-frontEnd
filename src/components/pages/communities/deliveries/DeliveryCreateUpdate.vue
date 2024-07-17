@@ -5,243 +5,105 @@ import { string, number, z as zod } from 'zod'
 import { catchFieldError } from '/@src/utils/api/catchFieldError'
 import { useSubmitHandler } from '/@src/composable/useSubmitHandler'
 import { useFetch } from '/@src/composable/useFetch'
+import { GoogleMap, Marker } from 'vue3-google-map'
 
 const $fetch = useFetch()
 const { submitHandler } = useSubmitHandler()
 const route = useRoute()
-interface RouteParams {
-  id?: string
-}
+interface RouteParams { id?: string }
 const params = route.params as RouteParams
-const OptionsDepartments = ref<
-  Array<{
-    value: number
-    label: string
-    districts: Array<{ value: number, label: string }>
-  }>
->([])
-const optionsOrganizations = ref<
-  Array<{
-    value: number
-    label: string
-  }>
->([])
-const OptionsDistricts = ref<Array<{ value: number, label: string }>>([])
-const districtEnable = ref<boolean>(true)
-const center = {
-  lat: parseFloat('-25.292584'),
-  lng: parseFloat('-57.578603'),
+interface Community {
+  value: number
+  label: string
+  location: { lat: number, lng: number }
 }
-const mapOptions = {
-  center,
-  zoom: 11,
-  streetViewControl: false,
-  mapTypeControl: false,
-}
-const mapDiv = ref<HTMLElement | null>(null)
-declare var google: any
-let marker: google.maps.Marker | null = null
+const optionsCommunities = ref<Array<Community>>([])
 const draggableMaps = ref(true)
-const columnPeople = [
-  { data: 'ci', title: 'Nro CI' },
-  { data: 'name', title: 'Nombre' },
-  { data: 'last_name', title: 'Nombre' },
-  {
-    data: 'date_birth',
-    title: 'Fecha de Nacimiento',
-    render: function (data, type) {
-      if (type === 'display' || type === 'filter') {
-        const date = new Date(data)
-        const day = String(date.getDate()).padStart(2, '0')
-        const month = String(date.getMonth() + 1).padStart(2, '0')
-        const year = date.getFullYear()
-        return `${day}-${month}-${year}`
-      }
-      return data
-    },
-  },
-  { data: 'gender', title: 'Sexo' },
-]
-const columnAdditional = [
-  { data: 'name', title: 'Dato Adicional' },
-  { data: 'info', title: 'Información' },
+
+const columnBenefits = [
+  { data: 'type_benefit_id', title: 'id' },
+  { data: 'name', title: 'Beneficio' },
+  { data: 'info', title: 'Detalle' },
+  { data: 'quantity', title: 'Cantidad' },
 ]
 const buttonTableSingle = [
   { button: 'delete', permission: 'full' },
 ]
-const isOpenPeople = ref(false)
 const isOpenAdditional = ref(false)
 
 // -------------------------- Add Data Additional -------------------------------
-interface Additional {
+interface Details {
   index: number
-  additional_id: number
+  type_benefit_id: number
   name: string
-  info: string
+  info?: string
+  quantity?: string
+  images?: []
 }
 let globalIndexCounter = 0
-const listAdditional = ref<Additional[]>([])
-const addItemAdditional = (additional: Additional) => {
+const listBenefits = ref<Details[]>([])
+const addItemAdditional = (additional: Details) => {
   const newIndex = globalIndexCounter++
-  listAdditional.value.push({
+  listBenefits.value.push({
     index: newIndex,
-    additional_id: additional.additional_id,
+    type_benefit_id: additional.type_benefit_id,
     name: additional.name,
     info: additional.info,
+    quantity: additional.quantity,
   })
   isOpenAdditional.value = false
 }
 const deleteItemAdditional = (id: number) => {
-  listAdditional.value = listAdditional.value.filter(i => i.index !== id)
+  listBenefits.value = listBenefits.value.filter(i => i.index !== id)
 }
 
-// -------------------------- Add People -------------------------------
-interface People {
-  ci: string
-  name: string
-  last_name: string
-  date_birth: Date
-  gender: string
-}
-const listPeople = ref<People[]>([])
-const addItemPeople = (people: People) => {
-  const ciSet = new Set(listPeople.value.map((person: People) => person.ci))
-  if (ciSet.has(people.ci)) {
-    notify.error('El registro ya ha sido Agregado')
-  }
-  else {
-    listPeople.value.push({
-      ci: people.ci,
-      name: people.name,
-      last_name: people.last_name,
-      date_birth: people.date_birth,
-      gender: people.gender,
-    })
-    isOpenPeople.value = false
-  }
-}
-const deleteItemPeople = (id: string) => {
-  listPeople.value.filter(function (item, index) {
-    if (item.ci == id) {
-      listPeople.value.splice(index, 1)
-    }
-  })
-}
-
-interface Department {
-  value: number
-  label: string
-  districts?: Array<{
-    value: number
-    label: string
-  }>
-}
-const selectDepartment = () => {
-  const department = OptionsDepartments.value.find(
-    (element: Department) => element.value === values.department_id,
-  )
-  if (department && department.districts) {
-    districtEnable.value = false
-    OptionsDistricts.value = department.districts
-  }
-}
-const findDepartmentByDistrict = (districtValue: number) => {
-  const department = OptionsDepartments.value.find(
-    dept =>
-      dept.districts
-      && dept.districts.some(district => district.value === districtValue),
-  )
-  setFieldValue('department_id', department ? department.value : null)
-  districtEnable.value = false
-}
-const desSelect = () => {
-  setFieldValue('district_id', null)
-  districtEnable.value = true
+const selectCommunity = () => {
+  const result = optionsCommunities.value.find((option: Community) => option.value === values.community_id)
+  setFieldValue('lat', result ? result.location.lat : 0)
+  setFieldValue('lng', result ? result.location.lng : 0)
 }
 
 const validationSchema = toTypedSchema(
   zod.object({
-    name: string({
-      required_error: 'Ingrese el nombre de comunidad',
+    community_id: number({
+      required_error: 'Seleccione una Comunidad',
+      invalid_type_error: 'Seleccione una Comunidad',
     }),
-    town: string().nullish(),
-    name_leader: string({
-      required_error: 'Ingrese el nombre del lider',
+    date: string({
+      required_error: 'Ingrese la fecha de entrega',
     }),
-    resolution_number: string().nullish(),
-    phone: string({
-      required_error: 'Ingrese el numero de Celular',
-    }),
-    superficie: number().nullish(),
-    organization_id: number({
-      required_error: 'Seleccione una Organización/Asociación',
-      invalid_type_error: 'Seleccione una Organización/Asociación',
-    }),
-    district_id: number({
-      required_error: 'Seleccione un distrito',
-      invalid_type_error: 'Seleccione un distrito',
-    }),
-    address: string({
-      required_error: 'Ingrese la dirección de la comunidad',
-    }),
-    nro_decreto: string().nullish(),
-    family_size: number({
-      required_error: 'Seleccione un distrito',
-      invalid_type_error: 'Seleccione un distrito',
-    }),
-    date_document: string().nullish(),
     lng: number(),
     lat: number(),
   }),
 )
+
 interface DataForm {
-  name: string
-  town: string
-  name_leader: string
-  resolution_number?: string | null
-  phone: string
-  superficie?: number | null
-  organization_id: number
-  department_id: number
-  district_id: number
-  address: string
-  nro_decreto: string
-  family_size: number
-  date_document: string
-  lng: number
+  community_id: number
+  date: string
   lat: number
-  additional_data: Additional[]
-  people: People[]
+  lng: number
+  deliveryDetails: Details[]
 }
 const { values, handleSubmit, setFieldError, setFieldValue, setValues } = useForm<DataForm>({
   validationSchema,
+  initialValues: {
+    lat: parseFloat('-25.292584'),
+    lng: parseFloat('-57.578603'),
+  },
 })
 
 // -------------Guardar los Datos ----------------------------
 const onSubmit = handleSubmit(async () => {
-  setFieldValue('additional_data', listAdditional.value)
-  setFieldValue('people', listPeople.value)
   await submitHandler(
-    'communities',
+    'deliveries',
     values,
     params.id,
     false,
     setFieldError,
-    '/communities',
+    '/communities/deliveries',
   )
 })
 
-const loadGoogleMapsApi = () => {
-  return new Promise<void>((resolve, reject) => {
-    const script = document.createElement('script')
-    script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyDDmEp9TeBUWtHMkgMukAGf8_nnaDFC3HU`
-    script.async = true
-    script.defer = true
-    script.onload = () => resolve()
-    script.onerror = () => reject()
-    document.head.appendChild(script)
-  })
-}
 function getUserLocation(): Promise<google.maps.LatLngLiteral> {
   return new Promise((resolve, reject) => {
     if (navigator.geolocation) {
@@ -272,67 +134,25 @@ function getUserLocation(): Promise<google.maps.LatLngLiteral> {
     }
   })
 }
-function createMarker(map: google.maps.Map, position: google.maps.LatLngLiteral) {
-  const marker = new google.maps.Marker({
-    position: position,
-    map: map,
-    draggable: draggableMaps.value,
-  })
-
-  google.maps.event.addListener(
-    marker,
-    'dragend',
-    function (event: { latLng: google.maps.LatLng }) {
-      setFieldValue('lat', event.latLng.lat())
-      setFieldValue('lng', event.latLng.lng())
-    },
-  )
-  return marker
-}
 
 const getDataUpdate = async () => {
   try {
     await $fetch(`/communities/${params.id}`).then(function (res) {
-      const map = new google.maps.Map(mapDiv.value, mapOptions)
-      const locations = {
+      setValues({
+        community_id: res.community_id,
+        date: res.date,
         lat: parseFloat(res.lat),
         lng: parseFloat(res.lng),
-      }
-      createMarker(map, locations)
-      map.setCenter(locations)
-      findDepartmentByDistrict(res.district.id)
-      selectDepartment()
-      setValues({
-        name: res.name,
-        town: res.town,
-        name_leader: res.name_leader,
-        phone: res.phone,
-        resolution_number: res.resolution_number,
-        nro_decreto: res.nro_decreto,
-        department_id: res.district.department_id,
-        district_id: res.district_id,
-        address: res.address,
-        superficie: res.superficie,
-        family_size: res.family_size,
-        date_document: res.date_document,
-        organization_id: res.organization_id,
       })
-      res.additional_data.forEach((item) => {
+      res.deliveryDetails.forEach((item: any) => {
         const newIndex = globalIndexCounter++
-        listAdditional.value.push({
+        listBenefits.value.push({
           index: newIndex,
-          additional_id: item.id,
-          name: item.name,
-          info: item.pivot.info,
-        })
-      })
-      res.people.forEach((item) => {
-        listPeople.value.push({
-          ci: item.ci,
-          name: item.name,
-          last_name: item.last_name,
-          date_birth: item.date_birth,
-          gender: item.gender,
+          type_benefit_id: item.type_benefit_id,
+          name: item.type_benefit.name,
+          info: item.info,
+          quantity: item.quantity,
+          images: item.images,
         })
       })
     })
@@ -344,41 +164,12 @@ const getDataUpdate = async () => {
 
 onMounted(async () => {
   try {
-    OptionsDepartments.value = (await $fetch('communities')).data.map((result: any) => ({
+    optionsCommunities.value = (await $fetch('communities')).data.map((result: any) => ({
       value: result.id,
       label: result.name,
+      location: { lat: parseFloat(result.lat), lng: parseFloat(result.lng) },
     }))
-    optionsOrganizations.value = (await $fetch('organizations')).data.map((result: any) => ({
-      value: result.id,
-      label: result.name,
-    }))
-    await loadGoogleMapsApi()
-    if (mapDiv.value) {
-      const map = new google.maps.Map(mapDiv.value, mapOptions)
-      getUserLocation()
-        .then((userLatLng) => {
-          marker = createMarker(map, userLatLng)
-          map.setCenter(userLatLng)
-        })
-        .catch((error) => {
-          console.error('Error al obtener la ubicación del usuario:', error)
-          marker = createMarker(map, center)
-          map.setCenter(center)
-        })
-      if (draggableMaps.value) {
-        map.addListener('click', function (event: { latLng: any }) {
-          if (marker) {
-            marker.setMap(null)
-          }
-          setFieldValue('lat', event.latLng.lat())
-          setFieldValue('lng', event.latLng.lng())
-          marker = createMarker(map, event.latLng)
-        })
-      }
-    }
-    else {
-      console.error('the element maps no está disposable.')
-    }
+    await getUserLocation()
     if (params.id) {
       await getDataUpdate()
     }
@@ -387,6 +178,11 @@ onMounted(async () => {
     console.error('Error al cargar los datos', error)
   }
 })
+
+function handleMarkerClick(event: any) {
+  setFieldValue('lat', event.latLng.lat())
+  setFieldValue('lng', event.latLng.lng())
+}
 
 const { y } = useWindowScroll()
 const isStuck = computed(() => {
@@ -407,10 +203,10 @@ const isStuck = computed(() => {
       },
       {
         label: 'Lista de Entregas',
-        to: '/communities/deliveries',
+        to: '/communities/deliveries'
       },
       {
-        label: 'Nueva Entrega',
+        label: 'Nueva Entrega'
       },
     ]"
   />
@@ -448,30 +244,42 @@ const isStuck = computed(() => {
             <!------------- MAPA --------------------------->
             <div class="column is-12">
               <h4>Ubicación Geografica</h4>
-              <div ref="mapDiv" style="width: 100%; height: 200px" />
+              <GoogleMap
+                ref="mapRef"
+                api-key="AIzaSyDDmEp9TeBUWtHMkgMukAGf8_nnaDFC3HU"
+                style="width: 100%; height: 200px"
+                :center="{ lat: values.lat, lng: values.lng }"
+                :zoom="11"
+                :street-view-control="false"
+                :map-type-control="false"
+              >
+                <Marker
+                  :options="{ position: { lat: values.lat, lng: values.lng }, draggable: draggableMaps }"
+                  @dragend="handleMarkerClick"
+                />
+              </GoogleMap>
             </div>
           </div>
           <div class="columns is-multiline">
-            <!------------- Departamento ------------------------>
+            <!------------- Community ------------------------>
             <div class="column is-12">
               <VField
-                id="department_id"
+                id="community_id"
                 label="Comunidad"
                 class="is-autocomplete-select"
               >
                 <VControl icon="feather:search">
                   <VMultiselect
                     placeholder="Seleccione una comunidad"
-                    :model-value="values.department_id"
+                    :model-value="values.community_id"
                     :close-on-select="true"
                     :searchable="true"
-                    :options="OptionsDepartments"
-                    @input="setFieldValue('department_id', $event)"
-                    @select="selectDepartment"
-                    @deselect="desSelect"
-                    @clear="desSelect"
+                    :options="optionsCommunities"
+                    @input="setFieldValue('community_id', $event)"
+                    @select="selectCommunity"
                   />
                 </VControl>
+                <ErrorMessage class="help is-danger" name="community_id" />
               </VField>
             </div>
             <!------------- Lista de Datos Adicionales ------------------------>
@@ -484,13 +292,15 @@ const isStuck = computed(() => {
                     color="info"
                     icon="fas fa-plus"
                     @click="isOpenAdditional = true"
-                  >Agregar Beneficios</VButton>
+                  >
+                    Agregar Beneficios
+                  </VButton>
                 </VButtons>
               </div>
               <VDataTableSingle
                 :column-id="'index'"
-                :columns="columnAdditional"
-                :model-value="listAdditional"
+                :columns="columnBenefits"
+                :model-value="listBenefits"
                 :button-table="buttonTableSingle"
                 @delete="deleteItemAdditional"
               />
@@ -501,15 +311,9 @@ const isStuck = computed(() => {
     </div>
   </form>
   <!-- Modal - Add Additional -->
-  <AddAdditional
+  <AddBenefits
     :is-open="isOpenAdditional"
     @close="isOpenAdditional = false"
     @add-additional="addItemAdditional"
-  />
-  <!-- Modal - Add People -->
-  <AddPeople
-    :is-open="isOpenPeople"
-    @close="isOpenPeople = false"
-    @add-people="addItemPeople"
   />
 </template>

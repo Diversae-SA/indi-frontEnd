@@ -33,6 +33,18 @@ const columnMov = [
       return data
     },
   },
+  {
+    data: 'type_movement',
+    title: 'Movimiento',
+  },
+  {
+    data: 'departamento.name',
+    title: 'Dependencia Destino',
+  },
+  {
+    data: 'user.name',
+    title: 'Usuario',
+  },
 ]
 const loading = ref(false)
 const nro_expediente = ref('')
@@ -51,6 +63,7 @@ interface ExpedienteForm {
   date_end: string | null
   userName: string
   movimientos: []
+  movements: []
 }
 const expedienteData = ref<ExpedienteForm>(<ExpedienteForm>{})
 
@@ -72,6 +85,7 @@ async function searchDocument() {
         date_end: res.date_end,
         userName: res.user.name,
         movimientos: [],
+        movements: res.movements
       }
     })
   }
@@ -263,6 +277,7 @@ onMounted(async () => {
           <div class="card-inner">
             <VDataTableSingle
               :columns="columnMov"
+              :model-value="expedienteData.movements"
             />
           </div>
         </VCard>

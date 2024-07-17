@@ -139,6 +139,9 @@ dependencies:
   focus-trap-vue:
     specifier: 4.0.3
     version: 4.0.3(focus-trap@7.5.4)(vue@3.4.15)
+  google-map-ts-vue3:
+    specifier: ^1.2.1
+    version: 1.2.1(vue@3.4.15)
   h3:
     specifier: 1.10.0
     version: 1.10.0
@@ -3354,6 +3357,10 @@ packages:
       '@types/minimatch': 5.1.2
       '@types/node': 20.11.5
     dev: true
+
+  /@types/google.maps@3.55.11:
+    resolution: {integrity: sha512-F3VuPtjKj4UGuyym75pqmgPBOHbT/i7I6/D+4DdtSzbeu2aWZG1ENwpbZOd46uO+PSAz9flJEhxxi+b4MVb4gQ==}
+    dev: false
 
   /@types/hast@3.0.3:
     resolution: {integrity: sha512-2fYGlaDy/qyLlhidX42wAH0KBi2TCjKMH8CHmBXgRlJ3Y+OXTiqsPQ6IWarZKwF1JoUcAJdPogv1d4b0COTpmQ==}
@@ -8095,6 +8102,15 @@ packages:
   /globjoin@0.1.4:
     resolution: {integrity: sha512-xYfnw62CKG8nLkZBfWbhWwDw02CHty86jfPcc2cr3ZfeuK9ysoVPPEUxf21bAD/rWAgk52SuBrLJlefNy8mvFg==}
     dev: true
+
+  /google-map-ts-vue3@1.2.1(vue@3.4.15):
+    resolution: {integrity: sha512-WkmYqquhah7X1y91CDZR0Cy18wTl4NBi4CmGYryuu1j93e7eIIf3UuaUv9i7bORvjh/9QR/p+kxK1D2y7nCrlA==}
+    peerDependencies:
+      vue: '>=3.2.0'
+    dependencies:
+      '@types/google.maps': 3.55.11
+      vue: 3.4.15(typescript@5.3.3)
+    dev: false
 
   /gopd@1.0.1:
     resolution: {integrity: sha512-d65bNlIadxvpb/A2abVdlqKqV563juRnZ1Wtk6s1sIR8uNsXR70xqIzVqxVf1eTqDunwT2MkczEeaezCKTZhwA==}
@@ -15251,6 +15267,7 @@ packages:
 
   /workbox-google-analytics@7.0.0:
     resolution: {integrity: sha512-MEYM1JTn/qiC3DbpvP2BVhyIH+dV/5BjHk756u9VbwuAhu0QHyKscTnisQuz21lfRpOwiS9z4XdqeVAKol0bzg==}
+    deprecated: It is not compatible with newer versions of GA starting with v4, as long as you are using GAv3 it should be ok, but the package is not longer being maintained
     dependencies:
       workbox-background-sync: 7.0.0
       workbox-core: 7.0.0

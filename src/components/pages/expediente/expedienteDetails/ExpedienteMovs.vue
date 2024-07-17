@@ -11,10 +11,12 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { string, boolean, number, z as zod, array } from 'zod'
 import { createLoadingTask, VuePdf } from 'vue3-pdfjs'
 import type { PDFDocumentProxy } from 'pdfjs-dist'
+import { useSubmitHandler } from '/@src/composable/useSubmitHandler'
 
 const notify = useNotyf()
 const route = useRoute()
 const $fetch = useFetch()
+const { submitHandler } = useSubmitHandler()
 const userSession = useUserSession()
 interface RouteParams { id?: string }
 const params = route.params as RouteParams
@@ -43,9 +45,9 @@ const loading = ref(false)
 const nro_expediente = ref('')
 
 const optionMov = [
-  { label: 'Salida', value: 1 },
-  { label: 'Gestion', value: 2 },
-  { label: 'Finiquito', value: 3 },
+  { label: 'Salida', value: 'Salida' },
+  { label: 'Gestion', value: 'Gestion' },
+  { label: 'Finiquito', value: 'Finiquito' },
 ]
 
 const optionGestion = [
@@ -232,8 +234,11 @@ onMounted(async () => {
 
 // -------------Save or Update -----------------------------------------------------------
 interface userForm {
-  type_mov: number
-  type_action: number
+  type_mov: string
+  type_action: number | null
+  departamento_id: number | null
+  observation: string | null
+
   profile_path: string | null
   people_id: number
   name: string | null
@@ -245,16 +250,9 @@ interface userForm {
 
 const validationSchema = toTypedSchema(
   zod.object({
-    type_mov: number({ required_error: 'Seleccione un tipo de movimiento' }),
-    name: string({
-      required_error: 'Nombre de usuario no puede estar vacio',
-    }).min(3, { message: 'El nombre debe contener como mínimo 3 letras' }),
-    email: string({
-      required_error: 'Nombre de usuario no puede estar vacio',
-    }).email('Nombre de usuario no puede estar vacio'),
-    profile_path: string().nullish(),
-    roles: array(number()).nullish(),
-    active: boolean().nullish(),
+    type_mov: string({ required_error: 'Seleccione un tipo de movimiento' }),
+    departamento_id: number().nullish(),
+    observation: string().nullish(),
   }),
 )
 
@@ -263,6 +261,15 @@ const { values, handleSubmit, isSubmitting, setFieldError, setFieldValue } = use
 })
 const onSubmit = handleSubmit(async () => {
   console.log(values)
+
+  await submitHandler(
+    '/expedientes/mov',
+    values,
+    params.id,
+    false,
+    setFieldError,
+    '/expediente/expediente_details/view/' + params.id,
+  )
 })
 
 const addFiles = ref(false)
@@ -272,9 +279,10 @@ function showitems() {
   dependencia.value = false
   addFiles.value = false
   gestion.value = false
-  if (values.type_mov == 1) {
+  if (values.type_mov == 'Salida') {
     dependencia.value = true
-  } else if (values.type_mov == 2) {
+  }
+  else if (values.type_mov == 'Gestion') {
     gestion.value = true
     addFiles.value = true
   }
@@ -408,7 +416,7 @@ const isStuck = computed(() => {
             <div class="form-section">
               <!-- --------------------- Tipo de Movimiento --------------------------- -->
               <VField
-                id="people_id"
+                id="type_mov"
                 label="Tipo de movimiento"
                 class="is-autocomplete-select"
               >
@@ -508,16 +516,16 @@ const isStuck = computed(() => {
               <!------------- Dependencia ------------------------------------------->
               <VField
                 v-if="dependencia"
-                id="external_entity_id"
-                label="Dependencia"
+                id="departamento_id"
+                label="Dependencia/Departamento"
               >
                 <VControl>
                   <VMultiselect
-                    :model-value="values.dependencie"
+                    :model-value="values.departamento_id"
                     :close-on-select="true"
                     :searchable="true"
                     :options="optionDepartments"
-                    @input="setFieldValue('external_entity_id', $event)"
+                    @input="setFieldValue('departamento_id', $event)"
                   />
                 </VControl>
               </VField>

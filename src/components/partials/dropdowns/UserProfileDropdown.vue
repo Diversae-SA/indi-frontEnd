@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useUserSession } from '/@src/stores/userSession'
 import { useNotyf } from '/@src/composable/useNotyf'
-import { useLaravelError } from '/@src/composable/useLaravelError'
+import { handleError } from '/@src/composable/useLaravelError'
 import { useApi } from '/@src/composable/useApi'
 
 const userSession = useUserSession()
@@ -24,7 +24,7 @@ async function logout() {
       })
     }
     catch (err: any) {
-      notify.error(useLaravelError(err))
+      notify.error(handleError(err))
     }
     finally {
       isLoading.value = false

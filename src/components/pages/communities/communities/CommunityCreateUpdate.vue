@@ -5,13 +5,14 @@ import { string, number, z as zod } from 'zod'
 import { catchFieldError } from '/@src/utils/api/catchFieldError'
 import { useSubmitHandler } from '/@src/composable/useSubmitHandler'
 import { useFetch } from '/@src/composable/useFetch'
+import { GoogleMap, Marker } from 'vue3-google-map'
+import { useNotyf } from '/@src/composable/useNotyf'
 
 const $fetch = useFetch()
+const notify = useNotyf()
 const { submitHandler } = useSubmitHandler()
 const route = useRoute()
-interface RouteParams {
-  id?: string
-}
+interface RouteParams { id?: string }
 const params = route.params as RouteParams
 const OptionsDepartments = ref<
   Array<{
@@ -28,19 +29,11 @@ const optionsOrganizations = ref<
 >([])
 const OptionsDistricts = ref<Array<{ value: number, label: string }>>([])
 const districtEnable = ref<boolean>(true)
-const center = {
+const center = ref({
   lat: parseFloat('-25.292584'),
   lng: parseFloat('-57.578603'),
-}
-const mapOptions = {
-  center,
-  zoom: 11,
-  streetViewControl: false,
-  mapTypeControl: false,
-}
-const mapDiv = ref<HTMLElement | null>(null)
-declare var google: any
-let marker: google.maps.Marker | null = null
+})
+const mapRef = ref(null)
 const draggableMaps = ref(true)
 const columnPeople = [
   { data: 'ci', title: 'Nro CI' },
@@ -49,7 +42,7 @@ const columnPeople = [
   {
     data: 'date_birth',
     title: 'Fecha de Nacimiento',
-    render: function (data, type) {
+    render: function (data: any, type: any) {
       if (type === 'display' || type === 'filter') {
         const date = new Date(data)
         const day = String(date.getDate()).padStart(2, '0')
@@ -164,7 +157,9 @@ const validationSchema = toTypedSchema(
     name: string({
       required_error: 'Ingrese el nombre de comunidad',
     }),
-    town: string().nullish(),
+    town: string({
+      required_error: 'Ingrese el nombre de del pueblo',
+    }),
     name_leader: string({
       required_error: 'Ingrese el nombre del lider',
     }),
@@ -173,22 +168,14 @@ const validationSchema = toTypedSchema(
       required_error: 'Ingrese el numero de Celular',
     }),
     superficie: number().nullish(),
-    organization_id: number({
-      required_error: 'Seleccione una Organización/Asociación',
-      invalid_type_error: 'Seleccione una Organización/Asociación',
-    }),
+    organization_id: number().nullish(),
     district_id: number({
       required_error: 'Seleccione un distrito',
       invalid_type_error: 'Seleccione un distrito',
     }),
-    address: string({
-      required_error: 'Ingrese la dirección de la comunidad',
-    }),
+    address: string().nullish(),
     nro_decreto: string().nullish(),
-    family_size: number({
-      required_error: 'Seleccione un distrito',
-      invalid_type_error: 'Seleccione un distrito',
-    }),
+    family_size: number().nullish(),
     date_document: string().nullish(),
     lng: number(),
     lat: number(),
@@ -202,8 +189,8 @@ interface DataForm {
   phone: string
   superficie?: number | null
   organization_id: number
-  department_id: number
-  district_id: number
+  department_id: number | null
+  district_id: number | null
   address: string
   nro_decreto: string
   family_size: number
@@ -231,17 +218,6 @@ const onSubmit = handleSubmit(async () => {
   )
 })
 
-const loadGoogleMapsApi = () => {
-  return new Promise<void>((resolve, reject) => {
-    const script = document.createElement('script')
-    script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyDDmEp9TeBUWtHMkgMukAGf8_nnaDFC3HU`
-    script.async = true
-    script.defer = true
-    script.onload = () => resolve()
-    script.onerror = () => reject()
-    document.head.appendChild(script)
-  })
-}
 function getUserLocation(): Promise<google.maps.LatLngLiteral> {
   return new Promise((resolve, reject) => {
     if (navigator.geolocation) {
@@ -272,35 +248,14 @@ function getUserLocation(): Promise<google.maps.LatLngLiteral> {
     }
   })
 }
-function createMarker(map: google.maps.Map, position: google.maps.LatLngLiteral) {
-  const marker = new google.maps.Marker({
-    position: position,
-    map: map,
-    draggable: draggableMaps.value,
-  })
-
-  google.maps.event.addListener(
-    marker,
-    'dragend',
-    function (event: { latLng: google.maps.LatLng }) {
-      setFieldValue('lat', event.latLng.lat())
-      setFieldValue('lng', event.latLng.lng())
-    },
-  )
-  return marker
-}
 
 const getDataUpdate = async () => {
   try {
     await $fetch(`/communities/${params.id}`).then(function (res) {
-      const map = new google.maps.Map(mapDiv.value, mapOptions)
-      const locations = {
-        lat: parseFloat(res.lat),
-        lng: parseFloat(res.lng),
-      }
-      createMarker(map, locations)
-      map.setCenter(locations)
+      center.value.lat = parseFloat(res.lat)
+      center.value.lng = parseFloat(res.lng)
       findDepartmentByDistrict(res.district.id)
+      mapRef.value?.map.panTo(center.value)
       selectDepartment()
       setValues({
         name: res.name,
@@ -316,8 +271,10 @@ const getDataUpdate = async () => {
         family_size: res.family_size,
         date_document: res.date_document,
         organization_id: res.organization_id,
+        lat: parseFloat(res.lat),
+        lng: parseFloat(res.lng),
       })
-      res.additional_data.forEach((item) => {
+      res.additional_data.forEach((item: any) => {
         const newIndex = globalIndexCounter++
         listAdditional.value.push({
           index: newIndex,
@@ -326,7 +283,7 @@ const getDataUpdate = async () => {
           info: item.pivot.info,
         })
       })
-      res.people.forEach((item) => {
+      res.people.forEach((item: any) => {
         listPeople.value.push({
           ci: item.ci,
           name: item.name,
@@ -355,41 +312,24 @@ onMounted(async () => {
       value: result.id,
       label: result.name,
     }))
-    await loadGoogleMapsApi()
-    if (mapDiv.value) {
-      const map = new google.maps.Map(mapDiv.value, mapOptions)
-      getUserLocation()
-        .then((userLatLng) => {
-          marker = createMarker(map, userLatLng)
-          map.setCenter(userLatLng)
-        })
-        .catch((error) => {
-          console.error('Error al obtener la ubicación del usuario:', error)
-          marker = createMarker(map, center)
-          map.setCenter(center)
-        })
-      if (draggableMaps.value) {
-        map.addListener('click', function (event: { latLng: any }) {
-          if (marker) {
-            marker.setMap(null)
-          }
-          setFieldValue('lat', event.latLng.lat())
-          setFieldValue('lng', event.latLng.lng())
-          marker = createMarker(map, event.latLng)
-        })
-      }
-    }
-    else {
-      console.error('the element maps no está disposable.')
-    }
     if (params.id) {
       await getDataUpdate()
+    }
+    else {
+      await getUserLocation()
     }
   }
   catch (error) {
     console.error('Error al cargar los datos', error)
   }
 })
+
+function handleMarkerClick(event: any) {
+  const lat = event.latLng.lat()
+  const lng = event.latLng.lng()
+  setFieldValue('lat', lat)
+  setFieldValue('lng', lng)
+}
 
 const { y } = useWindowScroll()
 const isStuck = computed(() => {
@@ -451,7 +391,21 @@ const isStuck = computed(() => {
             <!------------- MAPA --------------------------->
             <div class="column is-12">
               <h4>Ubicación Geografica</h4>
-              <div ref="mapDiv" style="width: 100%; height: 200px" />
+              <!--              <div ref="mapDiv" style="width: 100%; height: 200px" />-->
+              <GoogleMap
+                ref="mapRef"
+                api-key="AIzaSyDDmEp9TeBUWtHMkgMukAGf8_nnaDFC3HU"
+                style="width: 100%; height: 200px"
+                :center="center"
+                :zoom="11"
+                :street-view-control="false"
+                :map-type-control="false"
+              >
+                <Marker
+                  :options="{ position: center, draggable: draggableMaps }"
+                  @dragend="handleMarkerClick"
+                />
+              </GoogleMap>
             </div>
           </div>
           <div class="columns is-multiline">
@@ -614,7 +568,9 @@ const isStuck = computed(() => {
                     color="info"
                     icon="fas fa-plus"
                     @click="isOpenAdditional = true"
-                  >Agregar dato adicional</VButton>
+                  >
+                    Agregar dato adicional
+                  </VButton>
                 </VButtons>
               </div>
               <VDataTableSingle

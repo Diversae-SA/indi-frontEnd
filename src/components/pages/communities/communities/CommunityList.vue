@@ -4,7 +4,7 @@ import { useNotyf } from '/@src/composable/useNotyf'
 import { formatError } from '/@src/composable/useError'
 import { hasPermission } from '/@src/utils/permissions'
 import { useFetch } from '/@src/composable/useFetch'
-import { catchFieldError } from '/@src/utils/api/catchFieldError'
+import { GoogleMap, Marker } from 'vue3-google-map'
 
 const api = useApi()
 const $fetch = useFetch()
@@ -46,7 +46,7 @@ const columnPeople = [
   {
     data: 'date_birth',
     title: 'Fecha de Nacimiento',
-    render: function (data, type) {
+    render: function (data: any, type: any) {
       if (type === 'display' || type === 'filter') {
         const date = new Date(data)
         const day = String(date.getDate()).padStart(2, '0')
@@ -68,17 +68,16 @@ interface People {
 }
 const listPeople = ref<People[]>([])
 const community = ref()
-const mapDiv = ref<HTMLElement | null>(null)
-declare var google: any
-const draggableMaps = ref(true)
+// const mapDiv = ref<HTMLElement | null>(null)
+// declare var google: any
+// const draggableMaps = ref(true)
 
 const handleView = async (id: number) => {
   await $fetch(`/communities/${id}`).then(async function (res) {
     community.value = res
-    modalView.value = true
     listPeople.value = []
-    await nextTick()
-    if (mapDiv.value) {
+    // await nextTick()
+    /* if (mapDiv.value) {
       const locations = {
         lat: parseFloat(res.lat),
         lng: parseFloat(res.lng),
@@ -92,7 +91,7 @@ const handleView = async (id: number) => {
       const map = new google.maps.Map(mapDiv.value, mapOptions)
       createMarker(map, locations)
       map.setCenter(locations)
-    }
+    } */
     res.people.forEach((people: any) => {
       listPeople.value.push({
         ci: people.ci,
@@ -104,6 +103,7 @@ const handleView = async (id: number) => {
     })
   })
   listPeople.value = [...listPeople.value]
+  modalView.value = true
 }
 const handleEdit = (id: number) => {
   router.push({ path: 'communities/update/' + id })
@@ -133,7 +133,7 @@ async function DeletedItem() {
   }
 }
 
-const loadGoogleMapsApi = () => {
+/* const loadGoogleMapsApi = () => {
   return new Promise<void>((resolve, reject) => {
     const script = document.createElement('script')
     script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyDDmEp9TeBUWtHMkgMukAGf8_nnaDFC3HU`
@@ -150,16 +150,16 @@ function createMarker(map: google.maps.Map, position: google.maps.LatLngLiteral)
     map: map,
     draggable: draggableMaps.value,
   })
-}
+} */
 
-onMounted(async () => {
+/* onMounted(async () => {
   try {
     await loadGoogleMapsApi()
   }
   catch (error) {
     console.error('Error al cargar los datos', error)
   }
-})
+}) */
 </script>
 
 <template>
@@ -313,19 +313,31 @@ onMounted(async () => {
         </div>
         <div class="column is-6">
           <h4>Ubicación Geográfica</h4>
-          <div ref="mapDiv" style="width: 100%; height: 200px" />
+          <GoogleMap
+            ref="mapRef"
+            api-key="AIzaSyDDmEp9TeBUWtHMkgMukAGf8_nnaDFC3HU"
+            style="width: 100%; height: 300px"
+            :center="{ lat: parseFloat(community.lat), lng: parseFloat(community.lng) }"
+            :zoom="11"
+            :street-view-control="false"
+            :map-type-control="false"
+          >
+            <Marker
+              :options="{ position: { lat: parseFloat(community.lat), lng: parseFloat(community.lng) }}"
+            />
+          </GoogleMap>
         </div>
         <div class="column is-6">
           <div class="row-inline">
             <p>Organizacion RUC:</p>
             <p class="subtitle is-6">
-              {{ community.organization.ruc }}
+              {{ community.organization ? community.organization.ruc : '' }}
             </p>
           </div>
           <div class="row-inline">
             <p>Organización/Asociación</p>
             <p class="subtitle is-6">
-              {{ community.organization.name }}
+              {{ community.organization ? community.organization.name : '' }}
             </p>
           </div>
         </div>

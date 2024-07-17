@@ -73,37 +73,37 @@ declare var google: any
 const draggableMaps = ref(true)
 
 const handleView = async (id: number) => {
-  await $fetch(`/communities/${id}`).then(async function (res) {
-    community.value = res
-    modalView.value = true
-    listPeople.value = []
-    await nextTick()
-    if (mapDiv.value) {
-      const locations = {
-        lat: parseFloat(res.lat),
-        lng: parseFloat(res.lng),
-      }
-      const mapOptions = {
-        locations,
-        zoom: 11,
-        streetViewControl: false,
-        mapTypeControl: false,
-      }
-      const map = new google.maps.Map(mapDiv.value, mapOptions)
-      createMarker(map, locations)
-      map.setCenter(locations)
-    }
-    res.people.forEach((people: any) => {
-      listPeople.value.push({
-        ci: people.ci,
-        name: people.name,
-        last_name: people.last_name,
-        date_birth: people.date_birth,
-        gender: people.gender,
-      })
-    })
-  })
-  listPeople.value = [...listPeople.value]
+  // await $fetch(`/communities/${id}`).then(async function (res) {
+  //   community.value = res
+  //   modalView.value = true
+  //   listPeople.value = []
+  //   await nextTick()
+  //   if (mapDiv.value) {
+  //     const locations = {
+  //       lat: parseFloat(res.lat),
+  //       lng: parseFloat(res.lng),
+  //     }
+  //     const mapOptions = {
+  //       locations,
+  //       zoom: 11,
+  //       streetViewControl: false,
+  //       mapTypeControl: false,
+  //     }
+  //     const map = new google.maps.Map(mapDiv.value, mapOptions)
+  //     createMarker(map, locations)
+  //     map.setCenter(locations)
+  //   }
+  //   res.people.forEach((people: any) => {
+  //     listPeople.value.push({
+  //       ci: people.ci,
+  //       name: people.name,
+  //       last_name: people.last_name,
+  //       date_birth: people.date_birth,
+  //       gender: people.gender,
+  //     })
+  //   })
+  // })
+  // listPeople.value = [...listPeople.value]
 }
 const handleEdit = (id: number) => {
   router.push({ path: 'communities/update/' + id })

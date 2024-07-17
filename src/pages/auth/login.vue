@@ -5,10 +5,9 @@ import { boolean, string, z as zod } from 'zod'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useDarkmode } from '/@src/stores/darkmode'
 import { useNotyf } from '/@src/composable/useNotyf'
-import { useLaravelError } from '/@src/composable/useLaravelError'
+import { handleError } from '/@src/composable/useLaravelError'
 import { useUserSession } from '/@src/stores/userSession'
 import { authenticateUser } from '/@src/services/modules/user/accounts'
-import { catchFieldError } from '/@src/utils/api/catchFieldError'
 
 const darkMode = useDarkmode()
 const router = useRouter()
@@ -58,17 +57,8 @@ async function onLogin(values: any) {
       notify.success(`${t('auth.logged-in')}, ${userSession.user!.name}`)
     }
     catch (err: any) {
-      // catchFieldError(err, setFieldError)
-      if (err && err.response && err.response._data && err.response._data.errors) {
-        const errors = err.response._data.errors
-        for (const key in errors) {
-          if (Object.prototype.hasOwnProperty.call(errors, key)) {
-            const errorMessage = errors[key][0]
-            setFieldError(key, errorMessage)
-          }
-        }
-      }
-      notify.error(useLaravelError(err))
+      const errorMessage = handleError(err, setFieldError)
+      notify.error(errorMessage)
     }
     finally {
       isLoading.value = false

@@ -9,6 +9,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     ActivityPanel: typeof import('./../src/components/partials/panels/ActivityPanel.vue')['default']
     AddAdditional: typeof import('./../src/components/pages/communities/communities/AddAdditional.vue')['default']
+    AddBenefits: typeof import('./../src/components/pages/communities/deliveries/AddBenefits.vue')['default']
     AdditionalDataList: typeof import('./../src/components/pages/communities/additionalData/AdditionalDataList.vue')['default']
     AddPeople: typeof import('./../src/components/partials/people/AddPeople.vue')['default']
     AnimatedLogo: typeof import('./../src/components/svg/AnimatedLogo.vue')['default']
