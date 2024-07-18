@@ -41,10 +41,10 @@ interface Details {
   images?: []
 }
 let globalIndexCounter = 0
-// const listBenefits = ref<Details[]>([])
+const listBenefits = ref<Details[]>([])
 const addItemAdditional = (additional: Details) => {
   const newIndex = globalIndexCounter++
-  values.deliveryDetails.push({
+  listBenefits.value.push({
     index: newIndex,
     type_benefit_id: additional.type_benefit_id,
     name: additional.name,
@@ -54,7 +54,8 @@ const addItemAdditional = (additional: Details) => {
   isOpenAdditional.value = false
 }
 const deleteItemAdditional = (id: number) => {
-  values.deliveryDetails = values.deliveryDetails.filter(i => i.index !== id)
+  const newData = listBenefits.value.filter(i => i.index !== id)
+  listBenefits.value.push(...newData)
 }
 
 const selectCommunity = () => {
@@ -94,6 +95,7 @@ const { values, handleSubmit, setFieldError, setFieldValue, setValues } = useFor
 
 // -------------Guardar los Datos ----------------------------
 const onSubmit = handleSubmit(async () => {
+  setFieldValue('deliveryDetails', listBenefits.value)
   await submitHandler(
     'deliveries',
     values,
