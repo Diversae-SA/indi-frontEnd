@@ -54,8 +54,7 @@ const addItemAdditional = (additional: Details) => {
   isOpenAdditional.value = false
 }
 const deleteItemAdditional = (id: number) => {
-  const newData = listBenefits.value.filter(i => i.index !== id)
-  listBenefits.value.push(...newData)
+  listBenefits.value = listBenefits.value.filter(i => i.index !== id)
 }
 
 const selectCommunity = () => {
@@ -174,7 +173,6 @@ interface ImageFile {
   }
 }
 const imageSelect = ref<ImageFile[]>([])
-const currentImageUrl = ref('')
 const onFileSelect = (event: Event): void => {
   const input = event.target as HTMLInputElement
   if (input.files) {
@@ -198,11 +196,10 @@ const onFileSelect = (event: Event): void => {
     }
   }
 }
-const removeFile = (): void => {
-  // selectedFile.value = null
-  // imageDimensions.value = null
-  currentImageUrl.value = ''
-  // setFieldValue('profile_path', '')
+const removeFile = (index: number): void => {
+  if (index > -1 && index < imageSelect.value.length) {
+    imageSelect.value.splice(index, 1)
+  }
 }
 
 onMounted(async () => {
