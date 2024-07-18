@@ -4,7 +4,6 @@ import { useNotyf } from '/@src/composable/useNotyf'
 import { formatError } from '/@src/composable/useError'
 import { hasPermission } from '/@src/utils/permissions'
 import { useFetch } from '/@src/composable/useFetch'
-import { catchFieldError } from '/@src/utils/api/catchFieldError'
 
 const api = useApi()
 const $fetch = useFetch()
@@ -14,20 +13,11 @@ const modalDeleted = ref(false)
 const updateTableEvent = ref(false)
 const columns = [
   { data: 'id', title: 'ID', visible: false },
-  { data: 'name', title: 'Comunidad Indígena', typeSearch: 'input' },
-  { data: 'town', title: 'Pueblo', typeSearch: 'input' },
-  { data: 'resolution_number', title: 'Nro de Resolución', typeSearch: 'input' },
-  { data: 'name_leader', title: 'Lider de la Comunidad', typeSearch: 'input' },
-  { data: 'phone', title: 'Nro de Telefono', typeSearch: 'input' },
-  { data: 'district.department.name', title: 'Departamento', typeSearch: 'input' },
-  { data: 'district.name', title: 'Distrito', typeSearch: 'input' },
-  { data: 'address', title: 'Dirección', visible: false, typeSearch: 'input' },
-  { data: 'organization.ruc', name: 'organization.ruc', title: 'RUC Organización/Asociación', visible: false, typeSearch: 'input' },
-  { data: 'organization.name', name: 'organization.name', title: 'Organización/Asociación', visible: false, typeSearch: 'input' },
-  { data: 'nro_decreto', title: 'Decreto de Pers. Jurídica', typeSearch: 'input' },
-  { data: 'superficie', title: 'Cant. de Has.', typeSearch: 'input' },
-  { data: 'family_size', title: 'Cant. de Familias.', typeSearch: 'input' },
-  { data: 'date_document', title: 'Documentación', typeSearch: 'input' },
+  { data: 'community.name', title: 'Comunidad', typeSearch: 'input' },
+  { data: 'community.district.department.name', title: 'Departamento', typeSearch: 'input' },
+  { data: 'community.district.name', title: 'Distrito', typeSearch: 'input' },
+  { data: 'user.name', title: 'Usuario', typeSearch: 'input' },
+  { data: 'date', title: 'Fecha de Entrega', typeSearch: 'input' },
   { data: 'lat', title: 'Latitud', visible: false, typeSearch: 'input' },
   { data: 'lng', title: 'Longitud', visible: false, typeSearch: 'input' },
 ]
@@ -35,8 +25,8 @@ const idData = ref(null)
 const emit = defineEmits(['updateTable'])
 const buttonTable = [
   { button: 'view', permission: 'full' },
-  { button: 'edit', permission: 'communities edit' },
-  { button: 'delete', permission: 'communities delete' },
+  { button: 'edit', permission: 'deliveries edit' },
+  { button: 'delete', permission: 'deliveries delete' },
 ]
 const modalView = ref(false)
 const columnPeople = [
@@ -106,7 +96,7 @@ const handleView = async (id: number) => {
   // listPeople.value = [...listPeople.value]
 }
 const handleEdit = (id: number) => {
-  router.push({ path: 'communities/update/' + id })
+  router.push({ path: 'communities/deliveries/update/' + id })
 }
 const handleDelete = (data: any) => {
   idData.value = data
@@ -142,13 +132,6 @@ const loadGoogleMapsApi = () => {
     script.onload = () => resolve()
     script.onerror = () => reject()
     document.head.appendChild(script)
-  })
-}
-function createMarker(map: google.maps.Map, position: google.maps.LatLngLiteral) {
-  return new google.maps.Marker({
-    position: position,
-    map: map,
-    draggable: draggableMaps.value,
   })
 }
 
@@ -194,7 +177,7 @@ onMounted(async () => {
   </div>
   <DataTableWrapper
     :columns="columns"
-    server-side-url="communities"
+    server-side-url="deliveries"
     :update-table-event="updateTableEvent"
     :button-table="buttonTable"
     :search-columns="true"

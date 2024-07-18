@@ -611,7 +611,4 @@ const isStuck = computed(() => {
     width: 100%;
   }
 }
-.modal-card-body {
-  background-color: var(--placeholder) !important;
-}
 </style>

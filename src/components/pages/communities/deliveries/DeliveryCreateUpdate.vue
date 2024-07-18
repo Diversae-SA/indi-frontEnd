@@ -21,7 +21,7 @@ const optionsCommunities = ref<Array<Community>>([])
 const draggableMaps = ref(true)
 
 const columnBenefits = [
-  { data: 'type_benefit_id', title: 'id' },
+  { data: 'index', title: 'id' },
   { data: 'name', title: 'Beneficio' },
   { data: 'info', title: 'Detalle' },
   { data: 'quantity', title: 'Cantidad' },
@@ -37,24 +37,24 @@ interface Details {
   type_benefit_id: number
   name: string
   info?: string
-  quantity?: string
+  quantity?: number
   images?: []
 }
 let globalIndexCounter = 0
-const listBenefits = ref<Details[]>([])
+// const listBenefits = ref<Details[]>([])
 const addItemAdditional = (additional: Details) => {
   const newIndex = globalIndexCounter++
-  listBenefits.value.push({
+  values.deliveryDetails.push({
     index: newIndex,
     type_benefit_id: additional.type_benefit_id,
     name: additional.name,
     info: additional.info,
-    quantity: additional.quantity,
+    quantity: additional.quantity ?? 0,
   })
   isOpenAdditional.value = false
 }
 const deleteItemAdditional = (id: number) => {
-  listBenefits.value = listBenefits.value.filter(i => i.index !== id)
+  values.deliveryDetails = values.deliveryDetails.filter(i => i.index !== id)
 }
 
 const selectCommunity = () => {
@@ -160,6 +160,47 @@ const getDataUpdate = async () => {
   catch (err: any) {
     catchFieldError(err, setFieldError)
   }
+}
+
+interface ImageFile {
+  file: File | null
+  currentImageUrl: string
+  path: string | null
+  imageDimension: {
+    width: number
+    height: number
+  }
+}
+const imageSelect = ref<ImageFile[]>([])
+const currentImageUrl = ref('')
+const onFileSelect = (event: Event): void => {
+  const input = event.target as HTMLInputElement
+  if (input.files) {
+    const files = Array.from(input.files)
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i]
+      const fileURL = URL.createObjectURL(file)
+      const img = new Image()
+      img.onload = () => {
+        imageSelect.value.push({
+          file: file,
+          path: null,
+          currentImageUrl: fileURL,
+          imageDimension: {
+            width: img.width,
+            height: img.height,
+          },
+        })
+      }
+      img.src = fileURL
+    }
+  }
+}
+const removeFile = (): void => {
+  // selectedFile.value = null
+  // imageDimensions.value = null
+  currentImageUrl.value = ''
+  // setFieldValue('profile_path', '')
 }
 
 onMounted(async () => {
@@ -305,6 +346,63 @@ const isStuck = computed(() => {
                 @delete="deleteItemAdditional"
               />
             </div>
+            <!------------- Adjunto Documento ------------------------------------------->
+            <div class="column is-12">
+              <!------------- Adjuntar Archivos ------------------->
+              <div class="column is-3">
+                <VField grouped>
+                  <VControl>
+                    <div class="file">
+                      <label class="file-label">
+                        <input
+                          class="file-input"
+                          accept="image/*,"
+                          type="file"
+                          name="resume"
+                          multiple
+                          @change.prevent="onFileSelect"
+                        >
+                        <span class="file-cta">
+                          <span class="file-icon">
+                            <i class="fas fa-cloud-upload-alt" />
+                          </span>
+                          <span class="file-label">Agregar Archivos</span>
+                        </span>
+                      </label>
+                    </div>
+                  </VControl>
+                </VField>
+              </div>
+              <div class="columns is-multiline">
+                <div class="column is-12">
+                  <div class="form-section-output">
+                    <div
+                      v-for="(image, index) in imageSelect"
+                      :key="index"
+                      class="pdf-view"
+                    >
+                      <VIconButton
+                        class="btn-delete-pdf"
+                        icon="feather:trash-2"
+                        color="danger"
+                        @click.prevent="removeFile(index)"
+                      />
+                      <VPhotosSwipe
+                        thumbnail-radius="5"
+                        :items="[
+                          {
+                            src: image.currentImageUrl,
+                            thumbnail: image.currentImageUrl,
+                            w: image.imageDimension.width,
+                            h: image.imageDimension.height,
+                          },
+                        ]"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -317,3 +415,23 @@ const isStuck = computed(() => {
     @add-additional="addItemAdditional"
   />
 </template>
+<style lang="scss" scoped>
+.pdf-view {
+  width: 200px;
+  cursor: pointer;
+  margin: 5px;
+}
+.btn-delete-pdf{
+  position: absolute;
+  z-index: 100;
+  margin: 5px;
+}
+.form-section-output {
+  display: flex;
+  flex-wrap: wrap;
+
+  .items-label {
+    width: 100%;
+  }
+}
+</style>

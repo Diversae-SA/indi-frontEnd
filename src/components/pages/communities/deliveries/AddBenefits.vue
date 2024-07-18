@@ -57,11 +57,9 @@ onMounted(async () => {
     console.error('Error al cargar los datos', error)
   }
 })
-
 const emits = defineEmits<{
   (e: 'addAdditional', values: any): void
 }>()
-
 const onSubmit = handleSubmit(async () => {
   emits('addAdditional', values)
 })
